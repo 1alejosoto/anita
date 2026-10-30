@@ -190,7 +190,15 @@
                 <button onclick="switchMainTab('budget')" data-tab="budget" class="main-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-stone-600 dark:text-slate-300 hover:bg-stone-200/60 dark:hover:bg-slate-800 transition">
                     <i data-lucide="Calculator" class="w-4 h-4"></i> Billetera & Control de Gastos
                 </button>
-                <div class="ml-auto flex items-center gap-2 text-xs text-stone-500 dark:text-slate-400">
+                <button onclick="switchMainTab('toolkit')" data-tab="toolkit" class="main-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-stone-600 dark:text-slate-300 hover:bg-stone-200/60 dark:hover:bg-slate-800 transition">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i> Kit SOS, Audio Italiano & Maleta
+                </button>
+                <div class="ml-auto flex items-center gap-3 text-xs text-stone-500 dark:text-slate-400">
+                    <div class="hidden xl:flex items-center gap-2 px-3 py-1 rounded-full bg-stone-200/70 dark:bg-slate-800 text-stone-700 dark:text-slate-300 font-mono text-[11px]">
+                        <span>🇮🇹/🇪🇸 <strong id="clockEurope">--:--</strong></span>
+                        <span class="text-stone-400">|</span>
+                        <span>🇨🇴 <strong id="clockBogota">--:--</strong></span>
+                    </div>
                     <span class="inline-flex items-center gap-1 font-medium text-amber-700 dark:text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
                         <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Dom 1 Nov: ¡Coliseo y Foro 100% Gratis!
                     </span>
@@ -264,30 +272,52 @@
                                 <h3 class="text-sm font-bold text-stone-900 dark:text-white flex items-center gap-1.5">
                                     <i data-lucide="map-pin" class="w-4 h-4 text-terracotta"></i> Mapa Interactivo de Ruta
                                 </h3>
-                                <p id="mapSubtitle" class="text-xs text-stone-500 dark:text-slate-400">Toca cualquier marcador para ver precios y abrir en Google Maps</p>
+                                <p id="mapSubtitle" class="text-xs text-stone-500 dark:text-slate-400">Toca cualquier marcador numerado o cambia entre Mapa de Ruta y Google Maps</p>
                             </div>
-                            <div class="flex items-center gap-1.5">
-                                <button onclick="fitMapToCurrentBounds()" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-stone-100 dark:bg-slate-700 text-stone-700 dark:text-slate-200 hover:bg-terracotta hover:text-white transition flex items-center gap-1">
-                                    <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i> Centrar Día
+                            <div class="flex flex-wrap items-center gap-1.5">
+                                <!-- Selector de Estilo de Mapa (Esri ArcGIS Enterprise - Sin bloqueo 403 ni API Key) -->
+                                <div class="inline-flex rounded-lg bg-stone-100 dark:bg-slate-700 p-0.5 border border-stone-200/80 dark:border-slate-600">
+                                    <button onclick="setMapTileStyle('esriStreet')" id="tileBtn-esriStreet" class="px-2 py-1 rounded-md text-[11px] font-bold bg-white dark:bg-slate-900 text-terracotta shadow-sm transition">Callejero HD</button>
+                                    <button onclick="setMapTileStyle('esriTopo')" id="tileBtn-esriTopo" class="px-2 py-1 rounded-md text-[11px] font-semibold text-stone-600 dark:text-slate-300 hover:text-stone-900 transition">Relieve</button>
+                                    <button onclick="setMapTileStyle('esriSat')" id="tileBtn-esriSat" class="px-2 py-1 rounded-md text-[11px] font-semibold text-stone-600 dark:text-slate-300 hover:text-stone-900 transition">Satélite</button>
+                                    <button onclick="toggleGoogleEmbedMode()" id="tileBtn-gmaps" class="px-2 py-1 rounded-md text-[11px] font-semibold text-stone-600 dark:text-slate-300 hover:text-stone-900 transition">Google Maps</button>
+                                </div>
+                                <button onclick="fitMapToCurrentBounds()" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-stone-100 dark:bg-slate-700 text-stone-700 dark:text-slate-200 hover:bg-terracotta hover:text-white transition flex items-center gap-1" title="Centrar ruta del día">
+                                    <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i> Centrar
                                 </button>
-                                <button onclick="showAllCityPins('roma')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-stone-100 dark:bg-slate-700 text-stone-700 dark:text-slate-200 hover:bg-terracotta hover:text-white transition">
-                                    Todo Roma
+                                <button onclick="showAllCityPins('roma')" class="px-2 py-1 rounded-lg text-xs font-semibold bg-stone-100 dark:bg-slate-700 text-stone-700 dark:text-slate-200 hover:bg-terracotta hover:text-white transition">
+                                    Roma
                                 </button>
-                                <button onclick="showAllCityPins('madrid')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-stone-100 dark:bg-slate-700 text-stone-700 dark:text-slate-200 hover:bg-terracotta hover:text-white transition">
+                                <button onclick="showAllCityPins('madrid')" class="px-2 py-1 rounded-lg text-xs font-semibold bg-stone-100 dark:bg-slate-700 text-stone-700 dark:text-slate-200 hover:bg-terracotta hover:text-white transition">
                                     Madrid
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Leaflet Map Canvas -->
-                        <div id="tripMap" class="w-full h-[380px] sm:h-[440px] z-10"></div>
+                        <!-- Leaflet Map Canvas (Con Ruta Numerada) -->
+                        <div id="tripMap" class="w-full h-[380px] sm:h-[430px] z-10 bg-stone-100 dark:bg-slate-900"></div>
 
-                        <!-- Map Legend Footer -->
-                        <div class="px-4 py-2.5 bg-stone-50 dark:bg-slate-900/80 border-t border-stone-200/60 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2 text-[11px] text-stone-600 dark:text-slate-400">
-                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-600 inline-block"></span> Hostal Base</span>
-                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-terracotta inline-block"></span> Parada del Día</span>
-                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span> Comida Barata</span>
-                            <span class="flex items-center gap-1.5"><span class="w-4 border-b-2 border-dashed border-terracotta inline-block"></span> Ruta a pie</span>
+                        <!-- Google Maps Direct Embed Container (Alternativa Instantánea) -->
+                        <div id="googleMapEmbedWrapper" class="hidden w-full h-[380px] sm:h-[430px] bg-stone-100 dark:bg-slate-900 relative">
+                            <iframe id="googleMapIframe" class="w-full h-full border-0" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=41.8902,12.4922&hl=es&z=15&output=embed"></iframe>
+                        </div>
+
+                        <!-- Quick Stop Jump Bar -->
+                        <div id="mapStopQuickBar" class="px-3.5 py-2 bg-white dark:bg-slate-800 border-t border-stone-200/60 dark:border-slate-700 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+                            <!-- Populated by JS -->
+                        </div>
+
+                        <!-- Botón Ruta Completa en Google Maps + Leyenda -->
+                        <div class="px-4 py-3 bg-stone-50 dark:bg-slate-900/80 border-t border-stone-200/60 dark:border-slate-700 space-y-2.5">
+                            <a id="fullDayGmapsRouteBtn" href="#" target="_blank" rel="noopener noreferrer" class="w-full py-2 px-3 rounded-xl bg-terracotta hover:bg-terracotta-dark text-white font-bold text-xs shadow-sm transition flex items-center justify-center gap-2">
+                                <i data-lucide="footprints" class="w-4 h-4"></i> Abrir Ruta Completa del Día a Pie en Google Maps
+                            </a>
+                            <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] text-stone-600 dark:text-slate-400">
+                                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-600 inline-block"></span> Hostal Base</span>
+                                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-terracotta inline-block"></span> Parada del Día</span>
+                                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span> Comida Barata</span>
+                                <span class="flex items-center gap-1.5"><span class="w-4 border-b-2 border-dashed border-terracotta inline-block"></span> Ruta a pie</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -759,26 +789,107 @@
             </div>
         </section>
 
+        <!-- ==========================================
+             TAB 5: KIT SOS, AUDIO ITALIANO & CHECKLIST DE MALETA
+             ========================================== -->
+        <section id="tab-toolkit" class="tab-section hidden space-y-8">
+            
+            <!-- Clima de Noviembre & Pronóstico -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="rounded-2xl bg-gradient-to-br from-amber-800 to-terracotta text-white p-5 shadow-md flex items-center justify-between">
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-amber-200">Clima en Roma (31 Oct – 5 Nov)</span>
+                        <h3 class="font-editorial font-bold text-2xl mt-0.5">11°C – 19°C • Otoño Templado</h3>
+                        <p class="text-xs text-amber-100 mt-1">Soleado con brisa fresca al atardecer. Lleva chaqueta ligera e impermeable plegable.</p>
+                    </div>
+                    <i data-lucide="cloud-sun" class="w-10 h-10 text-amber-200 shrink-0"></i>
+                </div>
+
+                <div class="rounded-2xl bg-gradient-to-br from-blue-900 to-slate-800 text-white p-5 shadow-md flex items-center justify-between">
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-sky-300">Clima en Madrid (5 – 6 Nov)</span>
+                        <h3 class="font-editorial font-bold text-2xl mt-0.5">7°C – 15°C • Más Frío de Noche</h3>
+                        <p class="text-xs text-sky-100 mt-1">La noche del jueves en La Latina baja a ~8°C. Ten un buzo/abrigo a mano en el morral.</p>
+                    </div>
+                    <i data-lucide="wind" class="w-10 h-10 text-sky-300 shrink-0"></i>
+                </div>
+
+                <div class="rounded-2xl bg-white dark:bg-slate-800 border border-stone-200 dark:border-slate-700 p-5 shadow-sm flex flex-col justify-between">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">Emergencias & Consulado</span>
+                        <i data-lucide="phone-call" class="w-4 h-4 text-rose-600"></i>
+                    </div>
+                    <div class="text-xs space-y-1.5 my-2">
+                        <p><strong>Emergencias Europa (Gratis):</strong> <a href="tel:112" class="font-mono font-bold text-rose-600 underline">112</a></p>
+                        <p><strong>Consulado Colombia en Roma:</strong> <span class="font-mono">+39 06 320 2405</span> (Via G. Pisanelli 4)</p>
+                        <p><strong>Consulado Colombia en Madrid:</strong> <span class="font-mono">+34 91 745 2590</span> (C. Alfonso XI, 6)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left: Interactive Italian & Travel Audio Phrasebook -->
+                <div class="lg:col-span-6 space-y-4">
+                    <div class="rounded-2xl bg-white dark:bg-slate-800 border border-stone-200 dark:border-slate-700 p-5 shadow-sm space-y-4">
+                        <div>
+                            <h3 class="font-editorial font-bold text-2xl text-stone-900 dark:text-white flex items-center gap-2">
+                                <i data-lucide="volume-2" class="w-5 h-5 text-terracotta"></i> Frases Clave en Italiano (Con Audio)
+                            </h3>
+                            <p class="text-xs text-stone-500 dark:text-slate-400">Toca cualquier frase para que tu celular la pronuncie en voz alta en italiano</p>
+                        </div>
+
+                        <div id="phrasebookContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Interactive Packing & Pre-Flight Checklist -->
+                <div class="lg:col-span-6 space-y-4">
+                    <div class="rounded-2xl bg-white dark:bg-slate-800 border border-stone-200 dark:border-slate-700 p-5 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-editorial font-bold text-2xl text-stone-900 dark:text-white flex items-center gap-2">
+                                    <i data-lucide="backpack" class="w-5 h-5 text-terracotta"></i> Checklist Inteligente de Equipaje
+                                </h3>
+                                <p class="text-xs text-stone-500 dark:text-slate-400">Especial para Roma + Kit de mano para la noche en Madrid</p>
+                            </div>
+                            <span id="packingProgressBadge" class="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-terracotta/15 text-terracotta">0/10</span>
+                        </div>
+
+                        <div id="packingListContainer" class="divide-y divide-stone-200/70 dark:divide-slate-700">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
     </main>
 
     <!-- MOBILE BOTTOM NAVIGATION BAR -->
     <nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-stone-200 dark:border-slate-800 px-2 py-1.5 shadow-2xl">
-        <div class="grid grid-cols-4 gap-1 max-w-md mx-auto">
+        <div class="grid grid-cols-5 gap-1 max-w-md mx-auto">
             <button onclick="switchMainTab('itinerary')" data-tab="itinerary" class="mobile-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-terracotta font-bold">
                 <i data-lucide="map" class="w-5 h-5"></i>
-                <span class="text-[10px] mt-0.5">Ruta & Mapa</span>
+                <span class="text-[10px] mt-0.5">Ruta/Mapa</span>
             </button>
             <button onclick="switchMainTab('logistics')" data-tab="logistics" class="mobile-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-stone-500 dark:text-slate-400 font-medium">
                 <i data-lucide="plane" class="w-5 h-5"></i>
-                <span class="text-[10px] mt-0.5">Vuelos/Hostal</span>
+                <span class="text-[10px] mt-0.5">Vuelos</span>
             </button>
             <button onclick="switchMainTab('food')" data-tab="food" class="mobile-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-stone-500 dark:text-slate-400 font-medium">
                 <i data-lucide="utensils" class="w-5 h-5"></i>
-                <span class="text-[10px] mt-0.5">Comida Barata</span>
+                <span class="text-[10px] mt-0.5">Comida</span>
             </button>
             <button onclick="switchMainTab('budget')" data-tab="budget" class="mobile-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-stone-500 dark:text-slate-400 font-medium">
                 <i data-lucide="wallet" class="w-5 h-5"></i>
-                <span class="text-[10px] mt-0.5">Presupuesto</span>
+                <span class="text-[10px] mt-0.5">Gastos</span>
+            </button>
+            <button onclick="switchMainTab('toolkit')" data-tab="toolkit" class="mobile-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-stone-500 dark:text-slate-400 font-medium">
+                <i data-lucide="shield-check" class="w-5 h-5"></i>
+                <span class="text-[10px] mt-0.5">Kit SOS</span>
             </button>
         </div>
     </nav>
@@ -810,337 +921,472 @@
     <!-- APPLICATION LOGIC & COMPLETE TRIP DATASET -->
     <script>
         // ==========================================
-        // 1. CURRENCY & STATE CONFIGURATION
+        // 1. CURRENCY CONVERTER & GLOBAL STATE
         // ==========================================
         const CURRENCY_RATES = {
-            EUR: { symbol: '€', rate: 1, decimals: 2, suffix: true },
-            COP: { symbol: '$', rate: 4650, decimals: 0, suffix: false, code: 'COP' },
-            AUD: { symbol: 'A$', rate: 1.66, decimals: 2, suffix: false, code: 'AUD' }
+            EUR: { rate: 1, symbol: '€', suffix: true, decimals: 2 },
+            COP: { rate: 4650, symbol: '$', suffix: false, decimals: 0 },
+            AUD: { rate: 1.66, symbol: 'A$', suffix: false, decimals: 2 }
         };
 
         let currentCurrency = localStorage.getItem('ana_trip_currency') || 'EUR';
-        let selectedDayId = parseInt(localStorage.getItem('ana_trip_day')) || 1;
+        let selectedDayId = parseInt(localStorage.getItem('ana_trip_day') || '1', 10);
         let checkedActivities = JSON.parse(localStorage.getItem('ana_trip_checked') || '{}');
         let dayNotes = JSON.parse(localStorage.getItem('ana_trip_notes') || '{}');
 
-        // Default Budget Items
-        const defaultBudgetItems = [
-            { id: 'b1', title: 'Tren FL1 Fiumicino → Roma Trastevere + Bus (Llegada)', category: 'Transporte', amountEUR: 9.50, paid: false },
-            { id: 'b2', title: 'Tasa Turística Municipal Roma (5 noches en hostal)', category: 'Compras', amountEUR: 17.50, paid: false },
-            { id: 'b3', title: 'Coliseo, Foro Romano y Palatino (¡Gratis Dom 1 Nov!)', category: 'Entradas', amountEUR: 0.00, paid: true },
-            { id: 'b4', title: 'Entrada Panteón de Agripa (Lunes 2 Nov)', category: 'Entradas', amountEUR: 5.00, paid: false },
-            { id: 'b5', title: 'Billetes urbanos extra en Roma (4 trayectos BIT)', category: 'Transporte', amountEUR: 6.00, paid: false },
-            { id: 'b6', title: 'Comidas, Pizzas, Trapizzino y Tonnarello en Roma (5 días)', category: 'Comida', amountEUR: 110.00, paid: false },
-            { id: 'b7', title: 'Tren FL1 Roma Trastevere → Aeropuerto Fiumicino (Salida)', category: 'Transporte', amountEUR: 9.50, paid: false },
-            { id: 'b8', title: 'Metro / Cercanías Madrid Aeropuerto ↔ La Latina (Ida y vuelta)', category: 'Transporte', amountEUR: 9.00, paid: false },
-            { id: 'b9', title: 'Bocadillo de calamares y Churros en San Ginés (Madrid)', category: 'Comida', amountEUR: 15.00, paid: false }
-        ];
+        function formatMoney(amountEUR) {
+            const num = Number(amountEUR) || 0;
+            if (num === 0) return 'GRATIS (0 €)';
+            const cfg = CURRENCY_RATES[currentCurrency] || CURRENCY_RATES.EUR;
+            const converted = num * cfg.rate;
+            if (currentCurrency === 'COP') {
+                return `${cfg.symbol} ${Math.round(converted).toLocaleString('es-CO')} COP`;
+            }
+            const formatted = converted.toLocaleString('es-ES', {
+                minimumFractionDigits: cfg.decimals,
+                maximumFractionDigits: cfg.decimals
+            });
+            return cfg.suffix ? `${formatted} ${cfg.symbol}` : `${cfg.symbol}${formatted}`;
+        }
 
-        let budgetItems = JSON.parse(localStorage.getItem('ana_trip_budget')) || defaultBudgetItems;
+        function setCurrency(currKey) {
+            if (!CURRENCY_RATES[currKey]) return;
+            currentCurrency = currKey;
+            localStorage.setItem('ana_trip_currency', currKey);
+
+            ['EUR', 'COP', 'AUD'].forEach(k => {
+                const btn = document.getElementById('currBtn' + k);
+                if (!btn) return;
+                if (k === currKey) {
+                    btn.className = 'px-2.5 py-1 text-xs font-mono font-bold rounded-lg bg-white dark:bg-slate-700 text-terracotta shadow-sm transition';
+                } else {
+                    btn.className = 'px-2.5 py-1 text-xs font-mono font-bold rounded-lg text-stone-600 dark:text-slate-400 hover:text-stone-900 transition';
+                }
+            });
+
+            renderAllViews();
+        }
 
         // ==========================================
-        // 2. COMPLETE DAY-BY-DAY DATASET WITH COORDS
+        // 2. COMPLETE DAY-BY-DAY ITINERARY DATA
         // ==========================================
         const TRIP_DAYS = [
             {
                 id: 1,
                 city: 'Roma',
-                shortTitle: 'Sáb 31 Oct',
+                shortTitle: 'Sáb 31 Oct • Trastevere',
                 title: 'Llegada a Roma, Isla Tiberina y Atardecer en Trastevere',
-                subtitle: 'Adaptación suave tras el vuelo desde Baréin, miradores gratuitos y noche bohemia al lado de tu hostal.',
-                dailyBudgetEUR: 22.00,
-                hostelCoords: [41.8868, 12.4774],
+                subtitle: 'Día suave de adaptación tras aterrizar a las 05:55 AM desde Baréin (Vuelo GF 27)',
                 hostelName: 'Borgo Ripa Urban Travel',
+                hostelCoords: [41.8868, 12.4774],
+                dailyBudgetEUR: 31.50,
                 stops: [
                     {
                         id: 'd1_s1',
-                        time: '05:55 – 08:00',
-                        title: 'Aterrizaje en Fiumicino y Tren FL1 a Trastevere',
-                        category: 'Logística',
+                        time: '06:30 - 07:45',
+                        category: 'Traslado Ahorro',
+                        title: 'Tren Regional FL1 desde Fiumicino hasta Roma Trastevere',
+                        fromPrev: 'En la Terminal 3 sigue los carteles amarillos "Treni / Trains"',
+                        desc: 'Toma el tren regional FL1 hasta la estación Roma Trastevere (27 min, 8,00 €) y luego el Tranvía 8 o Bus H (1,50 €) hasta tu hostal en Lungotevere Ripa 3. Deja la maleta guardada sin costo en recepción.',
+                        tip: 'No tomes el tren Leonardo Express a Termini (cuesta 14 € y te deja lejos de Trastevere).',
                         costEUR: 9.50,
-                        coords: [41.8868, 12.4774],
-                        desc: 'Aterriza el vuelo GF 27. Toma el tren regional FL1 (8 €) hasta la estación Roma Trastevere y el Bus H o Tranvía 8 (1,50 €) hasta Borgo Ripa Urban Travel. Deja la maleta en recepción y toma un espresso con cornetto en barra (~2,50 €).',
-                        tip: 'No tomes el tren Leonardo Express de 14 €: te deja en Termini (lejos de tu hostal). El FL1 es más barato y directo a Trastevere.',
-                        mapsQuery: 'Borgo+Ripa+Urban+Travel+Roma'
+                        coords: [41.8726, 12.4663],
+                        mapsQuery: 'Stazione+Roma+Trastevere'
                     },
                     {
                         id: 'd1_s2',
-                        time: '09:30 – 12:30',
-                        title: 'Isla Tiberina, Barrio Judío y Jardín de los Naranjos',
-                        category: 'Mirador Gratis',
-                        costEUR: 0,
-                        coords: [41.8851, 12.4801],
-                        desc: 'Cruza el Puente Cestio frente a tu hostal hacia la Isla Tiberina, camina por el Pórtico de Octavia, pasa por la Boca de la Verdad y sube al Giardino degli Aranci (Jardín de los Naranjos) y la cerradura secreta de la Orden de Malta.',
-                        tip: 'Al asomarte por el ojo de la cerradura en Piazza dei Cavalieri di Malta verás la cúpula de San Pedro enmarcada por árboles.',
-                        mapsQuery: 'Giardino+degli+Aranci+Roma'
+                        time: '08:30 - 10:30',
+                        category: 'Paseo & Café',
+                        title: 'Isla Tiberina y Barrio Judío (Pórtico de Octavia)',
+                        fromPrev: 'Cruza a pie el Puente Cestio justo frente a tu hostal (5 min)',
+                        desc: 'Toma tu primer cappuccino con cornetto en barra (~2,50 €), cruza la histórica Isla Tiberina del año 62 a.C. y recorre el Pórtico de Octavia y el Teatro de Marcelo por fuera.',
+                        tip: 'Pide siempre el café "al banco" (en la barra) para pagar precio local.',
+                        costEUR: 2.50,
+                        coords: [41.8906, 12.4777],
+                        mapsQuery: 'Isola+Tiberina+Roma'
                     },
                     {
                         id: 'd1_s3',
-                        time: '13:30 – 17:30',
-                        title: 'Almuerzo Al Taglio, Check-in y Siesta Reparadora',
-                        category: 'Descanso',
-                        costEUR: 6.50,
-                        coords: [41.8894, 12.4696],
-                        desc: 'Come una porción de pizza al corte recién horneada en Trastevere, recibe tu habitación en Borgo Ripa Urban Travel y descansa un par de horas.',
-                        tip: 'Dormir 2 horas en la tarde te quitará el jet-lag del vuelo desde Singapur.',
-                        mapsQuery: 'Piazza+di+Santa+Maria+in+Trastevere+Roma'
+                        time: '11:00 - 13:00',
+                        category: 'Mirador Gratis',
+                        title: 'Boca de la Verdad y Jardín de los Naranjos (Aventino)',
+                        fromPrev: 'Camina 8 min hacia el sur junto al río Tíber',
+                        desc: 'Sube a la colina del Aventino para ver la cúpula de San Pedro desde la terraza del Giardino degli Aranci y asómate por la famosa cerradura de la Orden de Malta.',
+                        tip: 'Tanto el jardín como la cerradura secreta son 100% gratuitos.',
+                        costEUR: 0,
+                        coords: [41.8829, 12.4802],
+                        mapsQuery: 'Giardino+degli+Aranci+Roma'
                     },
                     {
                         id: 'd1_s4',
-                        time: '18:00 – 21:30',
-                        title: 'Basílica Santa Maria in Trastevere, Gianicolo y Trapizzino',
-                        category: 'Cultura & Cena',
+                        time: '13:30 - 17:30',
+                        category: 'Almuerzo & Descanso',
+                        title: 'Trapizzino en Piazza Trilussa + Check-in y Siesta en Hostal',
+                        fromPrev: 'Baja caminando 10 min de regreso a Trastevere',
+                        desc: 'Almuerza un Trapizzino recién hecho con un supplì (~7 €), haz el check-in en Borgo Ripa Urban Travel y descansa un par de horas para recuperarte del vuelo largo.',
+                        tip: 'El Trapizzino de pollo alla cacciatora o albóndigas al sugo llena muchísimo por 5 €.',
                         costEUR: 7.00,
-                        coords: [41.8916, 12.4705],
-                        desc: 'Entra gratis a la Basílica de Santa Maria in Trastevere (mosaicos dorados del siglo XII), sube al mirador de la colina del Gianicolo y cena en Trapizzino en Piazza Trilussa.',
-                        tip: 'Pide el Trapizzino de Pollo alla Cacciatora o Polpette al Sugo (5 €) + un supplì (2 €).',
-                        mapsQuery: 'Trapizzino+Trastevere+Piazza+Trilussa+Roma'
+                        coords: [41.8894, 12.4694],
+                        mapsQuery: 'Trapizzino+Trastevere+Roma'
+                    },
+                    {
+                        id: 'd1_s5',
+                        time: '18:30 - 21:30',
+                        category: 'Noche Bohemia',
+                        title: 'Basílica Santa Maria in Trastevere y Cena de Pasta en Sartén',
+                        fromPrev: 'A 6 minutos a pie por las callejuelas de Trastevere',
+                        desc: 'Entra gratis a ver los mosaicos dorados del siglo XII en Santa Maria in Trastevere y cierra tu primer día con una pasta Cacio e Pepe en Tonnarello.',
+                        tip: 'Si Tonnarello Paglia tiene fila, camina 2 minutos a Tonnarello Calisto o Tonnarello Scala.',
+                        costEUR: 12.50,
+                        coords: [41.8895, 12.4706],
+                        mapsQuery: 'Basilica+di+Santa+Maria+in+Trastevere'
                     }
                 ]
             },
             {
                 id: 2,
                 city: 'Roma',
-                shortTitle: 'Dom 01 Nov ★',
-                title: '¡Domenica al Museo! Coliseo, Foro Romano y Palatino GRATIS',
-                subtitle: 'Primer domingo del mes: aprovecha la entrada de 0 € en los monumentos más famosos del Imperio Romano.',
-                dailyBudgetEUR: 20.00,
-                hostelCoords: [41.8868, 12.4774],
+                shortTitle: 'Dom 1 Nov • ¡Museos Gratis!',
+                title: 'Domenica al Museo: Coliseo, Foro Romano y Palatino a 0 €',
+                subtitle: 'Por ser el primer domingo del mes, todos los parques arqueológicos estatales son gratuitos',
                 hostelName: 'Borgo Ripa Urban Travel',
+                hostelCoords: [41.8868, 12.4774],
+                dailyBudgetEUR: 23.00,
                 stops: [
                     {
                         id: 'd2_s1',
-                        time: '08:00 – 11:00',
-                        title: 'Coliseo de Roma (Entrada Gratuita Primer Domingo)',
-                        category: 'Monumento 0 €',
+                        time: '08:00 - 10:30',
+                        category: 'Entrada 0 €',
+                        title: 'Coliseo Romano (Anfiteatro Flavio) — ¡100% Gratis!',
+                        fromPrev: 'Caminando 22 min pasando por el Circo Máximo o Bus 75 desde Trastevere',
+                        desc: 'Los primeros domingos del mes no hay reserva online: las entradas gratuitas se entregan por orden de llegada en la taquilla de Piazza del Colosseo. Llega a las 08:00 AM para entrar de primera.',
+                        tip: 'Ahorras 18 € directos. Lleva tu botella de agua vacía y llénala dentro en las fuentes.',
                         costEUR: 0,
                         coords: [41.8902, 12.4922],
-                        desc: 'Camina 22 minutos desde tu hostal pasando junto al Circo Máximo. En la taquilla de la Piazza del Colosseo reclama tu ticket gratuito por orden de llegada.',
-                        tip: 'Estar en la fila a las 08:00 AM en punto (abre 08:30 AM) te ahorra los 18 € de la entrada regular.',
                         mapsQuery: 'Colosseo+Roma'
                     },
                     {
                         id: 'd2_s2',
-                        time: '11:15 – 13:45',
-                        title: 'Foro Romano y Monte Palatino',
-                        category: 'Arqueología 0 €',
+                        time: '10:30 - 13:00',
+                        category: 'Entrada 0 €',
+                        title: 'Foro Romano y Monte Palatino — ¡100% Gratis!',
+                        fromPrev: 'Justo al frente del Coliseo pasando el Arco de Constantino',
+                        desc: 'Con el mismo ticket gratuito recorre la Vía Sacra, el Arco de Tito, el Templo de Saturno y sube a las terrazas imperiales del Monte Palatino.',
+                        tip: 'Sube hasta el mirador del Palatino sobre el Foro para la mejor foto panorámica.',
                         costEUR: 0,
                         coords: [41.8925, 12.4853],
-                        desc: 'Con el mismo ticket gratuito entra al Foro Romano y sube al Monte Palatino. Recorre la Vía Sacra, el Arco de Tito, el Templo de Saturno y el mirador imperial.',
-                        tip: 'Dentro del Foro hay fuentes de agua potable (Nasoni) para rellenar tu botella gratis.',
                         mapsQuery: 'Foro+Romano+Roma'
                     },
                     {
                         id: 'd2_s3',
-                        time: '14:00 – 16:00',
-                        title: 'Almuerzo Bohemio en el Barrio de Monti',
-                        category: 'Gastronomía',
-                        costEUR: 9.00,
-                        coords: [41.8946, 12.4940],
-                        desc: 'Sube un par de cuadras hacia la Piazza della Madonna dei Monti para comer un panino artesanal o pasta para llevar sentado en la fuente.',
-                        tip: 'Monti está justo detrás del Coliseo pero tiene precios locales mucho más bajos.',
+                        time: '13:30 - 15:00',
+                        category: 'Almuerzo Local',
+                        title: 'Pizza al Taglio y Café en el Barrio de Monti',
+                        fromPrev: 'Sale por Via dei Fori Imperiali y sube 5 min hacia Via Cavour',
+                        desc: 'Descansa en la plazoleta de Madonna dei Monti comiendo pizza al corte al peso y un helado artesanal.',
+                        tip: 'Comer sentada en los escalones de la fuente de Piazza della Madonna dei Monti es tradición local.',
+                        costEUR: 8.50,
+                        coords: [41.8950, 12.4912],
                         mapsQuery: 'Piazza+della+Madonna+dei+Monti+Roma'
                     },
                     {
                         id: 'd2_s4',
-                        time: '16:30 – 19:30',
-                        title: 'Piazza del Campidoglio y Terrazas del Vittoriano',
+                        time: '15:30 - 18:00',
                         category: 'Mirador Gratis',
+                        title: 'Plaza del Capitolio (Miguel Ángel) y Terraza del Vittoriano',
+                        fromPrev: 'A 8 minutos caminando por Via dei Fori Imperiali',
+                        desc: 'Sube la escalinata de Miguel Ángel al Campidoglio (mirador lateral gratis sobre el Foro) y entra sin costo a las terrazas intermedias del Monumento a Vittorio Emanuele II.',
+                        tip: 'El mirador lateral derecho detrás del Palacio Senatorio tiene la mejor vista gratuita del Foro.',
                         costEUR: 0,
-                        coords: [41.8933, 12.4829],
-                        desc: 'Sube por la escalinata diseñada por Miguel Ángel a la Plaza del Capitolio y entra sin costo a las terrazas panorámicas del Monumento a Vittorio Emanuele II (Altar de la Patria).',
-                        tip: 'Por el callejón derecho detrás del Palacio Senatorio (Via Monte Tarpeo) tienes la mejor vista nocturna gratuita de todo el Foro Romano.',
+                        coords: [41.8946, 12.4829],
                         mapsQuery: 'Piazza+del+Campidoglio+Roma'
+                    },
+                    {
+                        id: 'd2_s5',
+                        time: '19:30 - 21:30',
+                        category: 'Cena Económica',
+                        title: 'Cena Tradicional en Carlo Menta (Trastevere)',
+                        fromPrev: '12 min caminando desde Piazza Venezia cruzando el río',
+                        desc: 'Uno de los restaurantes más económicos de todo Trastevere con pizzas romanas delgadas desde 6 € y pastas desde 8 €.',
+                        tip: 'Pide la pizza Margherita o Diavola y bruschetta al pomodoro.',
+                        costEUR: 14.50,
+                        coords: [41.8891, 12.4728],
+                        mapsQuery: 'Ristorante+Carlo+Menta+Roma'
                     }
                 ]
             },
             {
                 id: 3,
                 city: 'Roma',
-                shortTitle: 'Lun 02 Nov',
-                title: 'Roma Barroca: Panteón, Fontana di Trevi y Plazas Icónicas',
-                subtitle: 'El circuito peatonal más hermoso del mundo: fuentes monumentales, Caravaggios gratis y helado artesanal.',
-                dailyBudgetEUR: 25.00,
-                hostelCoords: [41.8868, 12.4774],
+                shortTitle: 'Lun 2 Nov • Roma Barroca',
+                title: 'Panteón de Agripa, Fontana di Trevi y Piazza Navona',
+                subtitle: 'Circuito 100% caminable por las plazas, fuentes y palacios del Centro Histórico',
                 hostelName: 'Borgo Ripa Urban Travel',
+                hostelCoords: [41.8868, 12.4774],
+                dailyBudgetEUR: 28.00,
                 stops: [
                     {
                         id: 'd3_s1',
-                        time: '09:00 – 11:30',
-                        title: 'Campo de\' Fiori, Piazza Navona y Caravaggios Gratis',
-                        category: 'Plazas & Arte',
-                        costEUR: 0,
+                        time: '09:00 - 10:45',
+                        category: 'Mercados & Plazas',
+                        title: 'Mercado de Campo de\' Fiori y Piazza Navona',
+                        fromPrev: 'Cruza el Puente Sisto a pie desde Trastevere (12 min)',
+                        desc: 'Pasea por los puestos matutinos de Campo de\' Fiori y llega a Piazza Navona para admirar la Fuente de los Cuatro Ríos de Bernini y la iglesia de Sant\'Agnese in Agone (gratis).',
+                        tip: 'No te sientes en los restaurantes alrededor de Piazza Navona (tienen sobreprecio turístico).',
+                        costEUR: 2.50,
                         coords: [41.8992, 12.4731],
-                        desc: 'Cruza el Puente Sisto hacia el mercado matutino de Campo de\' Fiori, admira la Fuente de los Cuatro Ríos en Piazza Navona y entra gratis a la iglesia San Luigi dei Francesi.',
-                        tip: 'En San Luigi dei Francesi verás 3 cuadros originales de Caravaggio (La vocación de San Mateo) sin pagar museo.',
                         mapsQuery: 'Piazza+Navona+Roma'
                     },
                     {
                         id: 'd3_s2',
-                        time: '11:45 – 14:00',
-                        title: 'Panteón de Agripa e Iglesia Sant\'Ignazio di Loyola',
-                        category: 'Monumento',
+                        time: '11:00 - 12:30',
+                        category: 'Joya Arquitectónica',
+                        title: 'Panteón de Roma y Basílica de Santa Maria sopra Minerva',
+                        fromPrev: 'Camina 5 minutos hacia el este desde Piazza Navona',
+                        desc: 'Maravíllate con la cúpula de hormigón no armado más grande del mundo y la tumba de Rafael. Al lado entra gratis a Santa Maria sopra Minerva (única iglesia gótica de Roma con un Cristo de Miguel Ángel).',
+                        tip: 'La entrada regular al Panteón cuesta solo 5 € en taquilla o portal oficial del Ministerio.',
                         costEUR: 5.00,
                         coords: [41.8986, 12.4769],
-                        desc: 'Maravíllate con la cúpula del Panteón (5 €) y camina 3 minutos hasta la Iglesia de Sant\'Ignazio di Loyola (entrada libre para ver su famoso techo en perspectiva 3D).',
-                        tip: 'A un costado del Panteón, en la Antica Salumeria, puedes pedir una focaccia rellena gigante de mortadela por ~6 €.',
                         mapsQuery: 'Pantheon+Roma'
                     },
                     {
                         id: 'd3_s3',
-                        time: '15:00 – 17:00',
-                        title: 'Fontana di Trevi y Gelato Artesanal',
-                        category: 'Imperdible',
-                        costEUR: 3.50,
+                        time: '13:00 - 15:00',
+                        category: 'Arte Gratis & Fontana',
+                        title: 'Iglesia de Sant\'Ignazio (Espejo 3D) y Fontana di Trevi',
+                        fromPrev: 'A 6 minutos caminando por Via del Seminario',
+                        desc: 'Entra gratis a Sant\'Ignazio di Loyola para ver su famoso techo en falsa perspectiva y llega a la Fontana di Trevi para lanzar tu moneda.',
+                        tip: 'Almuerza un panini relleno al corte en las callejuelas cercanas por ~7 €.',
+                        costEUR: 7.50,
                         coords: [41.9009, 12.4833],
-                        desc: 'Lanza tu moneda de espaldas en la Fontana di Trevi para asegurar tu regreso a Roma y disfruta de un cono de gelato de pistacho y stracciatella.',
-                        tip: 'Nunca compres helado donde las montañas de colores brillen artificialmente; busca letreros de "Gelato Artigianale".',
                         mapsQuery: 'Fontana+di+Trevi+Roma'
                     },
                     {
                         id: 'd3_s4',
-                        time: '17:30 – 20:00',
-                        title: 'Piazza di Spagna y Atardecer en Terraza del Pincio',
-                        category: 'Mirador Gratis',
-                        costEUR: 0,
-                        coords: [41.9110, 12.4795],
-                        desc: 'Sube la Escalinata de la Plaza de España y camina por el borde alto hasta la Terrazza del Pincio (Villa Borghese) para ver el sol caer detrás de Piazza del Popolo.',
-                        tip: 'Para regresar descansada a Trastevere puedes tomar el bus junto al río Tíber por 1,50 €.',
+                        time: '16:00 - 18:30',
+                        category: 'Atardecer Gratis',
+                        title: 'Plaza de España y Mirador del Pincio (Villa Borghese)',
+                        fromPrev: '10 minutos a pie por Via di Propaganda',
+                        desc: 'Sube la escalinata de Piazza di Spagna, camina por el paseo panorámico hasta la Terraza del Pincio en Villa Borghese y contempla el atardecer sobre Piazza del Popolo.',
+                        tip: 'En Piazza del Popolo entra gratis a la iglesia Santa Maria del Popolo para ver 2 cuadros reales de Caravaggio.',
+                        costEUR: 3.00,
+                        coords: [41.9115, 12.4782],
                         mapsQuery: 'Terrazza+del+Pincio+Roma'
+                    },
+                    {
+                        id: 'd3_s5',
+                        time: '19:30 - 21:30',
+                        category: 'Cena Romana',
+                        title: 'Supplì Roma + Cena en Trastevere',
+                        fromPrev: 'Regreso caminando junto al río o Bus 280',
+                        desc: 'Prueba la famosa croqueta de arroz con mozzarella derretida en Supplì Roma (Via di S. Francesco a Ripa) y cena en el barrio.',
+                        tip: 'Cada supplì recién salido cuesta ~2,50 € y es un manjar callejero.',
+                        costEUR: 10.00,
+                        coords: [41.8861, 12.4729],
+                        mapsQuery: 'Suppli+Roma+Via+di+San+Francesco+a+Ripa'
                     }
                 ]
             },
             {
                 id: 4,
                 city: 'Roma',
-                shortTitle: 'Mar 03 Nov',
-                title: 'Ciudad del Vaticano, San Pedro y Castillo de Sant\'Angelo',
-                subtitle: 'Visita la iglesia más grande de la cristiandad sin costo y recorre el puente de los ángeles de Bernini.',
-                dailyBudgetEUR: 22.00,
-                hostelCoords: [41.8868, 12.4774],
+                shortTitle: 'Mar 3 Nov • Vaticano',
+                title: 'Ciudad del Vaticano, Basílica de San Pedro y Castel Sant\'Angelo',
+                subtitle: 'Visita estratégica en martes para evitar la multitud de la Audiencia Papal de los miércoles',
                 hostelName: 'Borgo Ripa Urban Travel',
+                hostelCoords: [41.8868, 12.4774],
+                dailyBudgetEUR: 24.50,
                 stops: [
                     {
                         id: 'd4_s1',
-                        time: '07:30 – 11:30',
-                        title: 'Basílica y Plaza de San Pedro (Ciudad del Vaticano)',
-                        category: 'Gratis 0 €',
-                        costEUR: 0,
+                        time: '07:30 - 10:30',
+                        category: 'Entrada 100% Gratis',
+                        title: 'Plaza y Basílica de San Pedro (La Piedad de Miguel Ángel)',
+                        fromPrev: 'Caminata escénica de 25 min junto al río Tíber o Bus 23 / 280',
+                        desc: 'Entra completamente gratis a la iglesia más grande del mundo para admirar La Piedad de Miguel Ángel, el Baldaquino de Bernini y la tumba de San Pedro.',
+                        tip: 'Llegar a las 07:30 AM te ahorra más de 1 hora de fila en el control de seguridad. Recuerda llevar hombros y rodillas cubiertos.',
+                        costEUR: 1.50,
                         coords: [41.9022, 12.4539],
-                        desc: 'Camina 25 minutos bordeando el Tíber desde Trastevere. Entrar a la Plaza y a la Basílica de San Pedro es 100% gratuito. Adentro verás La Piedad de Miguel Ángel y el Baldaquino de Bernini.',
-                        tip: 'Llegando entre 07:30 y 08:00 AM pasas directo el control de seguridad. Recuerda llevar hombros y rodillas cubiertos.',
                         mapsQuery: 'Basilica+di+San+Pietro+Vaticano'
                     },
                     {
                         id: 'd4_s2',
-                        time: '12:00 – 14:30',
-                        title: 'Via della Conciliazione y Puente de Sant\'Angelo',
-                        category: 'Paseo Histórico',
+                        time: '11:00 - 13:00',
+                        category: 'Paseo Monumental',
+                        title: 'Via della Conciliazione, Castel Sant\'Angelo y Puente de los Ángeles',
+                        fromPrev: 'Camina 10 minutos en línea recta desde la Plaza de San Pedro',
+                        desc: 'Recorre la avenida monumental hasta el mausoleo del emperador Adriano (Castel Sant\'Angelo) y cruza el puente peatonal escoltado por los ángeles esculpidos por Bernini.',
+                        tip: 'Las fotos desde el Puente Umberto I hacia San Pedro son de postal y sin costo.',
                         costEUR: 0,
                         coords: [41.9031, 12.4663],
-                        desc: 'Camina desde el Vaticano hasta la fortaleza circular del Castillo de Sant\'Angelo y cruza el puente peatonal más fotogénico de Roma.',
-                        tip: 'En las calles de Borgo Pio (al lado del Vaticano) hay panaderías donde puedes almorzar por 5 € - 7 €.',
                         mapsQuery: 'Ponte+Sant+Angelo+Roma'
                     },
                     {
                         id: 'd4_s3',
-                        time: '18:30 – 21:30',
-                        title: 'Cena Tradicional en Sartén: Tonnarello (Trastevere)',
-                        category: 'Cena Especial',
-                        costEUR: 14.00,
-                        coords: [41.8899, 12.4689],
-                        desc: 'Regresa por la renacentista Via Giulia y date el gusto de cenar una auténtica pasta romana (Cacio e Pepe, Carbonara o Amatriciana) servida en sartén en Tonnarello.',
-                        tip: 'Si hay fila en Via della Paglia, camina 1 minuto a Tonnarello Calisto o Tonnarello Scala: es el mismo dueño y menú.',
-                        mapsQuery: 'Tonnarello+Via+della+Paglia+Roma'
+                        time: '13:15 - 15:00',
+                        category: 'Almuerzo Barato',
+                        title: 'Pizza al Corte en el Barrio de Prati / Borgo Pio',
+                        fromPrev: 'A 6 minutos de Castel Sant\'Angelo',
+                        desc: 'Recorre las pintorescas calles peatonales de Borgo Pio y almuerza focaccia o pasta del día en barra.',
+                        tip: 'En Prati los precios para almorzar son mucho más económicos que frente a la plaza del Vaticano.',
+                        costEUR: 8.50,
+                        coords: [41.9045, 12.4596],
+                        mapsQuery: 'Borgo+Pio+Roma'
+                    },
+                    {
+                        id: 'd4_s4',
+                        time: '16:30 - 18:30',
+                        category: 'El Mejor Mirador',
+                        title: 'Fontana dell\'Acqua Paola y Mirador del Gianicolo',
+                        fromPrev: 'Subida escénica a pie de regreso hacia Trastevere',
+                        desc: 'Sube a la colina del Gianicolo (donde se rodó La Grande Bellezza) para tener toda Roma a tus pies al atardecer y baja directo hacia tu hostal.',
+                        tip: 'El mirador de Piazzale Garibaldi y el Tempietto di Bramante son gratuitos.',
+                        costEUR: 2.50,
+                        coords: [41.8914, 12.4615],
+                        mapsQuery: 'Terrazza+del+Gianicolo+Roma'
+                    },
+                    {
+                        id: 'd4_s5',
+                        time: '19:30 - 21:30',
+                        category: 'Cena Trastevere',
+                        title: 'Noche de Carbonara o Amatriciana en Tonnarello Scala',
+                        fromPrev: 'Baja las escaleras del Gianicolo directo a Piazza della Scala (10 min)',
+                        desc: 'Disfruta una cena cálida en Piazza della Scala en el corazón de Trastevere.',
+                        tip: 'El tiramisú casero (~6 €) alcanza perfecto para darse un gusto.',
+                        costEUR: 12.00,
+                        coords: [41.8907, 12.4685],
+                        mapsQuery: 'Tonnarello+Scala+Roma'
                     }
                 ]
             },
             {
                 id: 5,
                 city: 'Roma',
-                shortTitle: 'Mié 04 Nov',
-                title: 'El Moisés de Miguel Ángel, Basílicas y Compras Inteligentes',
-                subtitle: 'Último día completo en Roma descubriendo tesoros gratuitos y comprando recuerdos a precio local.',
-                dailyBudgetEUR: 20.00,
-                hostelCoords: [41.8868, 12.4774],
+                shortTitle: 'Mié 4 Nov • Roma Secreta',
+                title: 'El Moisés de Miguel Ángel, Ruta de Caravaggio y Compras en Supermercado',
+                subtitle: 'Arte de museo 100% gratuito dentro de basílicas históricas y tarde de recuerdos económicos',
                 hostelName: 'Borgo Ripa Urban Travel',
+                hostelCoords: [41.8868, 12.4774],
+                dailyBudgetEUR: 27.00,
                 stops: [
                     {
                         id: 'd5_s1',
-                        time: '09:30 – 11:30',
-                        title: 'San Pietro in Vincoli (El Moisés de Miguel Ángel)',
-                        category: 'Arte Gratis',
+                        time: '09:30 - 11:00',
+                        category: 'Obra Maestra Gratis',
+                        title: 'Basílica de San Pietro in Vincoli (El Moisés de Miguel Ángel)',
+                        fromPrev: 'Caminata de 25 min o Bus 75 desde Trastevere hasta Cavour',
+                        desc: 'Entra completamente gratis a ver frente a frente la monumental escultura en mármol del Moisés esculpida por Miguel Ángel en 1515 y las cadenas de San Pedro.',
+                        tip: 'Lleva una moneda de 0,50 € o 1 € por si quieres encender la iluminación del altar.',
                         costEUR: 0,
                         coords: [41.8938, 12.4931],
-                        desc: 'Entra gratis a esta basílica para contemplar de cerca la impresionante escultura en mármol del Moisés esculpida por Miguel Ángel en 1515.',
-                        tip: 'Lleva una moneda de 1 € por si quieres encender la iluminación especial del altar.',
                         mapsQuery: 'Basilica+di+San+Pietro+in+Vincoli+Roma'
                     },
                     {
                         id: 'd5_s2',
-                        time: '12:00 – 15:00',
+                        time: '11:30 - 13:00',
+                        category: 'Basílica Mayor Gratis',
                         title: 'Basílica Papal de Santa Maria Maggiore',
-                        category: 'Gratis 0 €',
+                        fromPrev: 'A 10 minutos caminando por Via Merulana / Cavour',
+                        desc: 'Una de las cuatro basílicas papales de Roma, famosa por su techo artesonado recubierto con oro y sus mosaicos paleocristianos del siglo V.',
+                        tip: 'Entrada 100% gratuita.',
                         costEUR: 0,
                         coords: [41.8976, 12.4984],
-                        desc: 'Visita una de las cuatro basílicas papales mayores de Roma, con techos artesonados recubiertos en oro real y mosaicos paleocristianos.',
-                        tip: 'La entrada a la nave principal es completamente gratuita.',
                         mapsQuery: 'Basilica+Papale+di+Santa+Maria+Maggiore+Roma'
                     },
                     {
                         id: 'd5_s3',
-                        time: '16:30 – 21:00',
-                        title: 'Compras en Supermercado y Despedida en Trastevere',
-                        category: 'Compras & Cena',
-                        costEUR: 15.00,
-                        coords: [41.8880, 12.4730],
-                        desc: 'Pasa por un supermercado local en Viale di Trastevere para comprar chocolates, café o quesos para llevar a Colombia, y disfruta tu última noche junto al río.',
-                        tip: 'Deja tu maleta armada esta noche para aprovechar toda la mañana del jueves sin prisas.',
-                        mapsQuery: 'Viale+di+Trastevere+Roma'
+                        time: '13:30 - 16:00',
+                        category: 'Almuerzo & Caravaggio',
+                        title: 'San Luigi dei Francesi (3 Caravaggios Gratis) y Gelato en Frigidarium',
+                        fromPrev: 'Paseo hacia el centro histórico (Piazza Navona)',
+                        desc: 'Entra sin costo a la iglesia de San Luis de los Franceses para admirar la trilogía de San Mateo pintada por Caravaggio, y prueba el famoso helado bañado en chocolate de Frigidarium (~3 €).',
+                        tip: 'Pide la cobertura de chocolate negro o blanco gratis sobre tu helado en Frigidarium.',
+                        costEUR: 9.00,
+                        coords: [41.8996, 12.4746],
+                        mapsQuery: 'Chiesa+di+San+Luigi+dei+Francesi+Roma'
+                    },
+                    {
+                        id: 'd5_s4',
+                        time: '16:30 - 18:30',
+                        category: 'Hack de Compras',
+                        title: 'Compras de Regalos y Chocolates en Supermercado Local (Trastevere)',
+                        fromPrev: 'De regreso por Viale di Trastevere',
+                        desc: 'En lugar de tiendas para turistas, entra a un supermercado Conad o Todis en Viale di Trastevere para comprar chocolates Baci Perugina, café, pasta o parmesano a precio de italiano.',
+                        tip: 'Una bolsa grande de chocolates Baci o pistachos cuesta ~4 € en supermercado vs 12 € en el aeropuerto.',
+                        costEUR: 6.00,
+                        coords: [41.8851, 12.4718],
+                        mapsQuery: 'Conad+Viale+di+Trastevere+Roma'
+                    },
+                    {
+                        id: 'd5_s5',
+                        time: '19:30 - 21:30',
+                        category: 'Cena de Despedida',
+                        title: 'Última Noche en Roma: Cena en Trastevere y Paseo por el Río Tíber',
+                        fromPrev: 'A 3 cuadras de tu hostal',
+                        desc: 'Despídete de Roma cenando en las terrazas iluminadas de Trastevere y deja tu maleta lista para mañana.',
+                        tip: 'Recuerda separar en tu morral pequeño la ropa para la noche de mañana en Madrid.',
+                        costEUR: 12.00,
+                        coords: [41.8883, 12.4701],
+                        mapsQuery: 'Piazza+di+San+Calisto+Roma'
                     }
                 ]
             },
             {
                 id: 6,
                 city: 'Madrid',
-                shortTitle: 'Jue 05 Nov ✈️',
-                title: 'Vuelo a España y Noche de Tapas en el Madrid de los Austrias',
-                subtitle: 'Mañana libre en Trastevere, vuelo UX1042 a las 15:55 y noche caminable desde Ok Hostel Madrid.',
-                dailyBudgetEUR: 22.00,
-                hostelCoords: [40.4115, -3.7062],
+                shortTitle: 'Jue 5 Nov • Vuelo a Madrid',
+                title: 'Mañana en Trastevere, Vuelo UX1042 y Noche de Tapas en Madrid',
+                subtitle: 'Vuelo Roma (15:55) → Madrid (18:30) y paseo nocturno por la Plaza Mayor y La Latina',
                 hostelName: 'Ok Hostel Madrid',
+                hostelCoords: [40.4115, -3.7062],
+                dailyBudgetEUR: 26.50,
                 stops: [
                     {
                         id: 'd6_s1',
-                        time: '12:00 – 15:55',
-                        title: 'Tren FL1 a Fiumicino y Vuelo UX1042 hacia Madrid',
-                        category: 'Vuelo',
-                        costEUR: 9.50,
-                        coords: [41.8868, 12.4774],
-                        desc: 'Haz check-out en Borgo Ripa a las 11:30 AM, toma el tren FL1 en Roma Trastevere (8 €) hacia el aeropuerto Fiumicino. Vuelo Air Europa UX1042 sale 15:55 y aterriza en Madrid a las 18:30.',
-                        tip: 'Pide en el mostrador de Roma que tu maleta documentada vaya directo hasta Bogotá (BOG).',
-                        mapsQuery: 'Stazione+Roma+Trastevere'
+                        time: '09:00 - 11:30',
+                        category: 'Mañana Romana',
+                        title: 'Mercado de San Cosimato, Último Cappuccino y Check-out',
+                        fromPrev: 'A 4 minutos a pie de Borgo Ripa Urban Travel',
+                        desc: 'Disfruta una mañana tranquila en la plaza de San Cosimato en Trastevere, toma tu último cornetto relleno de pistacho y haz el check-out a las 11:30 AM.',
+                        tip: 'Guarda un panini para el aeropuerto y ahorra la comida cara de la terminal.',
+                        costEUR: 5.50,
+                        coords: [41.8866, 12.4694],
+                        mapsQuery: 'Piazza+di+San+Cosimato+Roma'
                     },
                     {
                         id: 'd6_s2',
-                        time: '18:30 – 20:00',
-                        title: 'Llegada a Madrid y Check-in en Ok Hostel (La Latina)',
-                        category: 'Logística',
-                        costEUR: 4.50,
-                        coords: [40.4115, -3.7062],
-                        desc: 'Toma el Metro hasta Tirso de Molina (o Cercanías hasta Sol/Atocha por 2,60 €) y regístrate en Ok Hostel Madrid (Calle Juanelo 24).',
-                        tip: 'Estás en el corazón de La Latina: todo el centro histórico de Madrid está a menos de 10 minutos a pie.',
-                        mapsQuery: 'Ok+Hostel+Madrid+Calle+Juanelo+24'
+                        time: '12:00 - 15:55',
+                        category: 'Vuelo UX1042',
+                        title: 'Tren FL1 a Fiumicino y Vuelo Air Europa UX1042 rumbo a Madrid',
+                        fromPrev: 'Bus H / Tranvía 8 hasta Roma Trastevere + Tren FL1 a Fiumicino',
+                        desc: 'Llega al aeropuerto a las 13:00 PM. Al documentar equipaje pide que etiqueten tu maleta grande hasta Bogotá (BOG). Despegue a las 15:55 y aterrizaje en Madrid-Barajas a las 18:30.',
+                        tip: 'Tren FL1 (8 €) + Bus/Tranvía (1,50 €) = 9,50 € total.',
+                        costEUR: 9.50,
+                        coords: [41.8003, 12.2389],
+                        mapsQuery: 'Aeropuerto+Roma+Fiumicino'
                     },
                     {
                         id: 'd6_s3',
-                        time: '20:15 – 23:00',
-                        title: 'Plaza Mayor, Puerta del Sol y Cava Baja',
+                        time: '18:45 - 20:00',
+                        category: 'Llegada a Madrid',
+                        title: 'Metro/Cercanías desde Barajas y Check-in en Ok Hostel Madrid',
+                        fromPrev: 'Metro hasta estación Tirso de Molina (Línea 1) o Cercanías a Sol',
+                        desc: 'Llega a Ok Hostel Madrid en Calle Juanelo 24 (calificación 9,0 en pleno barrio de La Latina), deja tu morral en la habitación y sal a caminar por el centro.',
+                        tip: 'El hostal está a solo 2 minutos de la estación de metro Tirso de Molina.',
+                        costEUR: 4.50,
+                        coords: [40.4115, -3.7062],
+                        mapsQuery: 'Ok+Hostel+Madrid+Calle+Juanelo+24'
+                    },
+                    {
+                        id: 'd6_s4',
+                        time: '20:15 - 22:30',
                         category: 'Noche Madrileña',
-                        costEUR: 8.00,
+                        title: 'Puerta del Sol, Plaza Mayor y Bocadillo de Calamares en La Campana',
+                        fromPrev: 'Caminando 7 minutos por Calle del Duque de Alba hacia Plaza Mayor',
+                        desc: 'Conoce el Kilómetro Cero y el Oso y el Madroño en Puerta del Sol, entra a la Plaza Mayor iluminada y cena el famoso bocadillo de calamares calientes con una caña en Bar La Campana.',
+                        tip: 'El bocadillo de calamares en Calle Botoneras cuesta ~4,50 € y es toda una institución en Madrid.',
+                        costEUR: 7.00,
                         coords: [40.4155, -3.7074],
-                        desc: 'Camina 7 minutos hasta la Plaza Mayor, prueba el tradicional bocadillo de calamares (~4,50 € en La Campana / Calle Botoneras), visita el Kilómetro Cero en la Puerta del Sol y regresa por la calle de tapas Cava Baja.',
-                        tip: 'Madrid de noche es muy segura y animada; las calles entre Sol, Plaza Mayor y La Latina están llenas de vida.',
                         mapsQuery: 'Plaza+Mayor+Madrid'
                     }
                 ]
@@ -1148,44 +1394,59 @@
             {
                 id: 7,
                 city: 'Madrid',
-                shortTitle: 'Vie 06 Nov 🇨🇴',
-                title: 'Mañana Real en Madrid, Churros en San Ginés y Vuelo a Bogotá',
-                subtitle: 'Aprovecha la mañana para ver el Palacio Real y desayunar churros antes de tu vuelo UX193 de las 15:15.',
-                dailyBudgetEUR: 10.50,
-                hostelCoords: [40.4115, -3.7062],
+                shortTitle: 'Vie 6 Nov • Madrid & Regreso',
+                title: 'Churros en San Ginés, Palacio Real y Vuelo UX193 a Bogotá',
+                subtitle: 'Mañana real por el Madrid de los Austrias antes de despegar a las 15:15 hacia Colombia',
                 hostelName: 'Ok Hostel Madrid',
+                hostelCoords: [40.4115, -3.7062],
+                dailyBudgetEUR: 21.00,
                 stops: [
                     {
                         id: 'd7_s1',
-                        time: '08:30 – 09:30',
-                        title: 'Chocolatería San Ginés (Churros con Chocolate)',
+                        time: '08:15 - 09:15',
                         category: 'Clásico Madrileño',
+                        title: 'Desayuno en Hostal + Chocolate con Churros en San Ginés',
+                        fromPrev: 'Caminando 9 minutos desde Ok Hostel por Plaza Mayor',
+                        desc: 'Aprovecha el desayuno del hostal o date el gusto clásico madrileño en la histórica Chocolatería San Ginés (fundada en 1894, abierta 24h).',
+                        tip: 'Si el pasadizo principal tiene fila, a la vuelta en Calle de Bordadores 9 tienen segunda sede con atención rápida.',
                         costEUR: 5.90,
-                        coords: [40.4167, -3.7070],
-                        desc: 'Después del desayuno del hostal, camina 10 minutos hasta el histórico Pasadizo de San Ginés (fundado en 1894) o su sede contigua en Calle Bordadores 9.',
-                        tip: 'Si el salón principal tiene fila, en la sede de Bordadores 9 (a media cuadra) te atienden de inmediato.',
+                        coords: [40.4168, -3.7069],
                         mapsQuery: 'Chocolateria+San+Gines+Madrid'
                     },
                     {
                         id: 'd7_s2',
-                        time: '09:35 – 11:10',
+                        time: '09:20 - 11:00',
+                        category: 'Paseo Real Gratis',
                         title: 'Catedral de la Almudena, Palacio Real y Jardines de Sabatini',
-                        category: 'Mirador Gratis',
+                        fromPrev: 'Camina 6 minutos por Calle del Arenal y Plaza de Oriente',
+                        desc: 'Entra gratis a la Catedral de la Almudena, recorre la explanada del Palacio Real de Madrid, la Plaza de Oriente y toma fotos espectaculares desde los Jardines de Sabatini.',
+                        tip: 'Todo el circuito exterior, los jardines reales y la entrada a la Catedral son gratuitos.',
                         costEUR: 0,
                         coords: [40.4180, -3.7143],
-                        desc: 'Camina por la Calle Mayor pasando por el exterior del Mercado de San Miguel hasta la Catedral de la Almudena (entrada libre), la Plaza de Oriente y los Jardines de Sabatini junto al Palacio Real.',
-                        tip: 'Las vistas desde la explanada entre el Palacio Real y la Almudena y los Jardines de Sabatini son 100% gratuitas.',
                         mapsQuery: 'Palacio+Real+de+Madrid'
                     },
                     {
                         id: 'd7_s3',
-                        time: '11:45 – 15:15',
-                        title: 'Recoger Bolso en Hostal, Rumbo a Barajas y Vuelo UX193',
-                        category: 'Regreso a Casa',
-                        costEUR: 4.50,
-                        coords: [40.4115, -3.7062],
-                        desc: 'Pasa a las 11:20 AM por Ok Hostel Madrid por tu bolso de mano y toma el Metro o Cercanías hacia el Aeropuerto Madrid-Barajas para llegar a las 12:30 PM. Tu vuelo UX193 despega a las 15:15 y aterriza en Bogotá a las 19:35.',
+                        time: '11:00 - 11:40',
+                        category: 'Regreso al Hostal',
+                        title: 'Paseo por el Exterior del Mercado de San Miguel y Check-out',
+                        fromPrev: 'Regreso a pie por Calle Mayor hacia La Latina (10 min)',
+                        desc: 'Pasa por la estructura de hierro del Mercado de San Miguel, recoge tu morral en Ok Hostel Madrid y sal hacia la estación.',
+                        tip: 'Sal del hostal a más tardar a las 11:45 AM para ir con total calma hacia Barajas.',
+                        costEUR: 2.50,
+                        coords: [40.4154, -3.7089],
+                        mapsQuery: 'Mercado+de+San+Miguel+Madrid'
+                    },
+                    {
+                        id: 'd7_s4',
+                        time: '11:45 - 15:15',
+                        category: 'Vuelo UX193 a Bogotá',
+                        title: 'Traslado a Madrid-Barajas y Vuelo Directo UX193 a Bogotá',
+                        fromPrev: 'Metro o Cercanías hasta Aeropuerto Madrid-Barajas',
+                        desc: 'Llegada al aeropuerto a las 12:30 PM. Embarque en el vuelo Air Europa UX193 de las 15:15 con llegada a Bogotá (El Dorado) a las 19:35 hora local.',
                         tip: '¡Buen viaje de regreso a casa, Ana María!',
+                        costEUR: 12.60,
+                        coords: [40.4839, -3.5679],
                         mapsQuery: 'Aeropuerto+Adolfo+Suarez+Madrid+Barajas'
                     }
                 ]
@@ -1193,7 +1454,7 @@
         ];
 
         // ==========================================
-        // 3. CURATED BUDGET FOOD DIRECTORY
+        // 3. CURATED LOW-COST GASTRONOMIC DIRECTORY
         // ==========================================
         const FOOD_SPOTS = [
             {
@@ -1201,245 +1462,376 @@
                 city: 'Roma',
                 zone: 'Piazza Trilussa, 46 (A 5 min de tu hostal)',
                 priceEUR: 5.00,
-                mustOrder: 'Trapizzino de Pollo alla Cacciatora o Albóndigas + Supplì',
-                desc: 'Invento romano premiado: esquina de pizza blanca crujiente rellena de guisos caseros calientes. Económico y llenador.',
-                coords: [41.8916, 12.4705],
-                mapsQuery: 'Trapizzino+Trastevere+Piazza+Trilussa+Roma'
+                mustOrder: 'Trapizzino de Pollo alla Cacciatora o Albóndigas al Sugo + Supplì',
+                desc: 'Invento romano famoso: esquina de masa de pizza blanca crujiente rellena de guisos tradicionales calientes.',
+                coords: [41.8894, 12.4694],
+                mapsQuery: 'Trapizzino+Trastevere+Piazza+Trilussa+46+Roma'
             },
             {
                 name: 'Tonnarello (Paglia / Calisto / Scala)',
                 city: 'Roma',
-                zone: 'Via della Paglia 1 / Piazza San Calisto (Trastevere)',
-                priceEUR: 13.00,
-                mustOrder: 'Tonnarelli Cacio e Pepe o Carbonara en sartén',
-                desc: 'La trattoria más famosa de Trastevere. Porciones abundantes servidas directamente en sartén de hierro.',
-                coords: [41.8899, 12.4689],
-                mapsQuery: 'Tonnarello+Trastevere+Roma'
+                zone: 'Via della Paglia 1 / Piazza di San Calisto (Trastevere)',
+                priceEUR: 12.50,
+                mustOrder: 'Tonnarelli Cacio e Pepe o Carbonara servida directo en sartén',
+                desc: 'La trattoria más famosa de Trastevere con porciones enormes y excelente relación calidad-precio.',
+                coords: [41.8896, 12.4698],
+                mapsQuery: 'Tonnarello+Via+della+Paglia+Roma'
+            },
+            {
+                name: 'Ristorante Carlo Menta',
+                city: 'Roma',
+                zone: 'Via della Lungaretta, 101 (Trastevere)',
+                priceEUR: 9.00,
+                mustOrder: 'Pizza romana finita (6 €) o Saltimbocca alla Romana',
+                desc: 'Imbatible para cuidar el bolsillo en una cena sentada con terraza en el corazón de Trastevere.',
+                coords: [41.8891, 12.4728],
+                mapsQuery: 'Carlo+Menta+Via+della+Lungaretta+101+Roma'
             },
             {
                 name: 'Supplì Roma',
                 city: 'Roma',
                 zone: 'Via di S. Francesco a Ripa, 137 (Trastevere)',
-                priceEUR: 3.00,
-                mustOrder: 'Supplì clásico al telefono y Pizza al taglio',
-                desc: 'Favorito de los locales en Trastevere para comer rápido al paso por menos de 5 €.',
-                coords: [41.8862, 12.4728],
+                priceEUR: 2.50,
+                mustOrder: 'Supplì clásico de ragú y mozzarella + Pizza Marinara al corte',
+                desc: 'Pequeño local histórico adorado por los vecinos de Trastevere para comer rápido, caliente y barato.',
+                coords: [41.8861, 12.4729],
                 mapsQuery: 'Suppli+Roma+Via+di+San+Francesco+a+Ripa+137'
             },
             {
-                name: 'Antica Salumeria Pantheon',
+                name: 'Gelateria Frigidarium',
                 city: 'Roma',
-                zone: 'Piazza della Rotonda, 4 (Frente al Panteón)',
-                priceEUR: 6.50,
-                mustOrder: 'Panino / Focaccia rellena de mortadela y provolone',
-                desc: 'En plena plaza del Panteón, pide en el mostrador del fondo un sándwich gigante recién cortado para llevar.',
-                coords: [41.8990, 12.4767],
-                mapsQuery: 'Antica+Salumeria+Piazza+della+Rotonda+Roma'
+                zone: 'Via del Governo Vecchio, 112 (Cerca de Piazza Navona)',
+                priceEUR: 3.00,
+                mustOrder: 'Cono de 2 bolas con baño de chocolate negro o blanco gratis',
+                desc: 'Helado artesanal cremoso donde sumergen tu cono en chocolate caliente que se vuelve crujiente al instante.',
+                coords: [41.8991, 12.4712],
+                mapsQuery: 'Gelateria+Frigidarium+Via+del+Governo+Vecchio+Roma'
             },
             {
-                name: 'Bar La Campana (Bocadillo de Calamares)',
+                name: 'Bar La Campana',
                 city: 'Madrid',
                 zone: 'Calle de Botoneras, 6 (Al lado de Plaza Mayor)',
                 priceEUR: 4.50,
-                mustOrder: 'Bocadillo de calamares recién fritos',
-                desc: 'Toda una institución madrileña a 7 minutos caminando desde Ok Hostel. Pan crujiente repleto de calamares tiernos.',
+                mustOrder: 'Bocadillo de calamares recién fritos en pan crujiente',
+                desc: 'El clásico más castizo, rápido y económico junto a la Plaza Mayor de Madrid.',
                 coords: [40.4150, -3.7068],
-                mapsQuery: 'Bar+La+Campana+Calle+Botoneras+Madrid'
+                mapsQuery: 'Bar+La+Campana+Calle+de+Botoneras+6+Madrid'
             },
             {
-                name: 'Chocolatería San Ginés (Pasadizo & Bordadores)',
+                name: 'Chocolatería San Ginés',
                 city: 'Madrid',
-                zone: 'Pasadizo de San Ginés, 5 / Calle Bordadores, 9',
+                zone: 'Pasadizo de San Ginés, 5 / C. de Bordadores, 9',
                 priceEUR: 5.90,
-                mustOrder: 'Chocolate caliente espeso con 6 churros',
-                desc: 'Abierto desde 1894. Ideal para tu noche del jueves o la mañana del viernes antes de caminar al Palacio Real.',
-                coords: [40.4167, -3.7070],
-                mapsQuery: 'Chocolateria+San+Gines+Madrid'
+                mustOrder: 'Taza de chocolate espeso + 6 churros recién hechos',
+                desc: 'Parada obligatoria desde 1894 a 9 minutos caminando desde Ok Hostel Madrid.',
+                coords: [40.4168, -3.7069],
+                mapsQuery: 'Chocolateria+San+Gines+Pasadizo+de+San+Gines+Madrid'
+            },
+            {
+                name: 'Pez Tortilla (La Latina)',
+                city: 'Madrid',
+                zone: 'Calle de la Cava Baja, 42 (A 4 min de Ok Hostel)',
+                priceEUR: 4.20,
+                mustOrder: 'Pincho de tortilla de patata jugosa (trufa, brie o clásica) + croqueta',
+                desc: 'En la calle más famosa de tapas de Madrid, muy cerca de tu hostal.',
+                coords: [40.4119, -3.7098],
+                mapsQuery: 'Pez+Tortilla+Cava+Baja+42+Madrid'
             }
         ];
 
         // ==========================================
-        // 4. CURRENCY FORMATTER HELPER
+        // 4. DEFAULT BUDGET BREAKDOWN DATA
         // ==========================================
-        function formatMoney(amountEUR) {
-            if (amountEUR === 0) return 'GRATIS (0 €)';
-            const cfg = CURRENCY_RATES[currentCurrency];
-            const converted = amountEUR * cfg.rate;
-            if (currentCurrency === 'EUR') {
-                return converted.toFixed(2).replace('.', ',') + ' €';
-            } else if (currentCurrency === 'COP') {
-                return '$ ' + Math.round(converted).toLocaleString('es-CO') + ' COP';
-            } else {
-                return 'A$ ' + converted.toFixed(2) + ' AUD';
-            }
-        }
+        const defaultBudgetItems = [
+            { id: 'b1', title: 'Tren FL1 Fiumicino → Roma Trastevere + Bus/Tranvía (Llegada)', category: 'Transporte', amountEUR: 9.50, paid: false },
+            { id: 'b2', title: 'Tren FL1 Roma Trastevere → Aeropuerto Fiumicino (Salida)', category: 'Transporte', amountEUR: 9.50, paid: false },
+            { id: 'b3', title: 'Billetes sueltos Bus/Metro en Roma (Tap & Go)', category: 'Transporte', amountEUR: 4.50, paid: false },
+            { id: 'b4', title: 'Metro / Cercanías Madrid Barajas ↔ La Latina (Ida y Vuelta)', category: 'Transporte', amountEUR: 9.00, paid: false },
+            { id: 'b5', title: 'Coliseo, Foro Romano y Palatino (¡Gratis Dom 1 Nov!)', category: 'Entradas', amountEUR: 0.00, paid: true },
+            { id: 'b6', title: 'Entrada oficial al Panteón de Roma', category: 'Entradas', amountEUR: 5.00, paid: false },
+            { id: 'b7', title: 'Alimentación Día 1 (Sáb 31 Oct - Café, Trapizzino y Cena)', category: 'Comida', amountEUR: 22.00, paid: false },
+            { id: 'b8', title: 'Alimentación Día 2 (Dom 1 Nov - Pizza al taglio y Cena)', category: 'Comida', amountEUR: 23.00, paid: false },
+            { id: 'b9', title: 'Alimentación Día 3 (Lun 2 Nov - Panini, Helado y Cena)', category: 'Comida', amountEUR: 23.00, paid: false },
+            { id: 'b10', title: 'Alimentación Día 4 (Mar 3 Nov - Almuerzo Prati y Cena)', category: 'Comida', amountEUR: 23.00, paid: false },
+            { id: 'b11', title: 'Alimentación Día 5 (Mié 4 Nov - Comida + Compras Supermercado)', category: 'Comida', amountEUR: 27.00, paid: false },
+            { id: 'b12', title: 'Alimentación y Tapas en Madrid (Jue 5 y Vie 6 Nov)', category: 'Comida', amountEUR: 26.00, paid: false }
+        ];
 
-        function setCurrency(curr) {
-            currentCurrency = curr;
-            localStorage.setItem('ana_trip_currency', curr);
-            ['EUR', 'COP', 'AUD'].forEach(c => {
-                const btn = document.getElementById('currBtn' + c);
-                if (c === curr) {
-                    btn.className = 'px-2.5 py-1 text-xs font-mono font-bold rounded-lg bg-white dark:bg-slate-700 text-terracotta shadow-sm transition';
-                } else {
-                    btn.className = 'px-2.5 py-1 text-xs font-mono font-bold rounded-lg text-stone-600 dark:text-slate-400 hover:text-stone-900 transition';
-                }
-            });
-            renderAllViews();
-        }
+        let budgetItems = JSON.parse(localStorage.getItem('ana_trip_budget') || 'null') || JSON.parse(JSON.stringify(defaultBudgetItems));
 
         // ==========================================
-        // 5. LEAFLET INTERACTIVE MAP INITIALIZATION
+        // 5. LEAFLET INTERACTIVE MAP INITIALIZATION (ESRI ARCGIS ENTERPRISE - NO 403 BLOCK)
         // ==========================================
         let map = null;
-        let markersLayer = null;
-        let routeLine = null;
+        let currentTileLayer = null;
+        let markersLayerGroup = null;
+        let routePolyline = null;
+        let currentBoundsCoords = [];
+        let isGoogleEmbedActive = false;
+
+        const TILE_PROVIDERS = {
+            esriStreet: {
+                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap'
+            },
+            esriTopo: {
+                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+                attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap'
+            },
+            esriSat: {
+                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics'
+            }
+        };
 
         function initMap() {
-            if (map) return;
+            const mapEl = document.getElementById('tripMap');
+            if (!mapEl || map) return;
+
             map = L.map('tripMap', {
-                zoomControl: true,
-                scrollWheelZoom: false
-            }).setView([41.8930, 12.4774], 14);
-
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; OpenStreetMap &copy; CARTO',
-                maxZoom: 19
-            }).addTo(map);
-
-            markersLayer = L.layerGroup().addTo(map);
-            updateMapForDay(selectedDayId);
-        }
-
-        function createCustomIcon(label, bgColor) {
-            return L.divIcon({
-                className: 'custom-div-icon',
-                html: `<div class="custom-pin" style="width:28px;height:28px;background-color:${bgColor};">${label}</div>`,
-                iconSize: [28, 28],
-                iconAnchor: [14, 14],
-                popupAnchor: [0, -14]
+                center: [41.8895, 12.4774],
+                zoom: 14,
+                zoomControl: true
             });
+
+            setMapTileStyle('esriStreet');
+            markersLayerGroup = L.layerGroup().addTo(map);
         }
 
-        function updateMapForDay(dayId) {
-            if (!map || !markersLayer) return;
-            markersLayer.clearLayers();
-            if (routeLine) {
-                map.removeLayer(routeLine);
-                routeLine = null;
+        function setMapTileStyle(styleKey) {
+            isGoogleEmbedActive = false;
+            const tripMapEl = document.getElementById('tripMap');
+            const gmapsWrap = document.getElementById('googleMapEmbedWrapper');
+            if (tripMapEl && gmapsWrap) {
+                tripMapEl.classList.remove('hidden');
+                gmapsWrap.classList.add('hidden');
             }
 
-            const dayObj = TRIP_DAYS.find(d => d.id === dayId);
-            if (!dayObj) return;
-
-            const latlngs = [];
-
-            // 1. Plot Hostel Base Marker
-            const hostelMarker = L.marker(dayObj.hostelCoords, {
-                icon: createCustomIcon('H', '#059669')
-            }).bindPopup(`
-                <div class="p-1 space-y-1">
-                    <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-700">Hostal Base (${dayObj.city})</span>
-                    <p class="font-bold text-sm mt-1">${dayObj.hostelName}</p>
-                    <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dayObj.hostelName + ' ' + dayObj.city)}" target="_blank" class="inline-block text-xs font-bold text-terracotta underline mt-1">Cómo llegar en Google Maps →</a>
-                </div>
-            `);
-            markersLayer.addLayer(hostelMarker);
-            latlngs.push(dayObj.hostelCoords);
-
-            // 2. Plot Day Stops
-            dayObj.stops.forEach((stop, index) => {
-                latlngs.push(stop.coords);
-                const marker = L.marker(stop.coords, {
-                    icon: createCustomIcon(String(index + 1), '#C85A32')
-                }).bindPopup(`
-                    <div class="p-1 max-w-[230px] space-y-1">
-                        <div class="flex items-center justify-between gap-2">
-                            <span class="text-[10px] font-mono font-bold text-terracotta">${stop.time}</span>
-                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-stone-100 text-stone-700">${formatMoney(stop.costEUR)}</span>
-                        </div>
-                        <p class="font-bold text-sm leading-snug">${stop.title}</p>
-                        <p class="text-xs text-stone-600 leading-relaxed">${stop.tip}</p>
-                        <a href="https://www.google.com/maps/search/?api=1&query=${stop.mapsQuery}" target="_blank" class="inline-block text-xs font-bold text-terracotta underline pt-1">Abrir en Google Maps →</a>
-                    </div>
-                `);
-                markersLayer.addLayer(marker);
+            ['esriStreet', 'esriTopo', 'esriSat', 'gmaps'].forEach(k => {
+                const btn = document.getElementById('tileBtn-' + k);
+                if (!btn) return;
+                if (k === styleKey) {
+                    btn.className = 'px-2 py-1 rounded-md text-[11px] font-bold bg-white dark:bg-slate-900 text-terracotta shadow-sm transition';
+                } else {
+                    btn.className = 'px-2 py-1 rounded-md text-[11px] font-semibold text-stone-600 dark:text-slate-300 hover:text-stone-900 transition';
+                }
             });
 
-            // 3. Draw Walking Polyline
-            routeLine = L.polyline(latlngs, {
+            if (!map) return;
+            const provider = TILE_PROVIDERS[styleKey] || TILE_PROVIDERS.esriStreet;
+            if (currentTileLayer) {
+                map.removeLayer(currentTileLayer);
+            }
+            currentTileLayer = L.tileLayer(provider.url, {
+                maxZoom: 19,
+                attribution: provider.attribution
+            }).addTo(map);
+
+            setTimeout(() => map.invalidateSize(), 150);
+        }
+
+        function toggleGoogleEmbedMode(customQuery) {
+            isGoogleEmbedActive = true;
+            const tripMapEl = document.getElementById('tripMap');
+            const gmapsWrap = document.getElementById('googleMapEmbedWrapper');
+            const iframe = document.getElementById('googleMapIframe');
+
+            ['esriStreet', 'esriTopo', 'esriSat', 'gmaps'].forEach(k => {
+                const btn = document.getElementById('tileBtn-' + k);
+                if (!btn) return;
+                if (k === 'gmaps') {
+                    btn.className = 'px-2 py-1 rounded-md text-[11px] font-bold bg-white dark:bg-slate-900 text-terracotta shadow-sm transition';
+                } else {
+                    btn.className = 'px-2 py-1 rounded-md text-[11px] font-semibold text-stone-600 dark:text-slate-300 hover:text-stone-900 transition';
+                }
+            });
+
+            if (tripMapEl && gmapsWrap) {
+                tripMapEl.classList.add('hidden');
+                gmapsWrap.classList.remove('hidden');
+            }
+
+            const dayObj = TRIP_DAYS.find(d => d.id === selectedDayId) || TRIP_DAYS[0];
+            const query = customQuery || (dayObj.stops[0] ? dayObj.stops[0].mapsQuery : 'Trastevere+Roma');
+            if (iframe) {
+                iframe.src = `https://maps.google.com/maps?q=${query}&hl=es&z=15&output=embed`;
+            }
+        }
+
+        function updateMapForDay(dayObj) {
+            if (!map) initMap();
+            if (!map || !markersLayerGroup) return;
+
+            markersLayerGroup.clearLayers();
+            if (routePolyline) {
+                map.removeLayer(routePolyline);
+                routePolyline = null;
+            }
+
+            const coordsList = [];
+
+            // 1. Add Hostel Base Pin
+            const hostelIcon = L.divIcon({
+                className: '',
+                html: `<div class="custom-pin" style="width:32px;height:32px;background:#059669;">🏠</div>`,
+                iconSize: [32, 32],
+                iconAnchor: [16, 16]
+            });
+
+            const hostelMarker = L.marker(dayObj.hostelCoords, { icon: hostelIcon })
+                .bindPopup(`
+                    <div class="p-1">
+                        <span class="text-[10px] font-bold uppercase text-emerald-600">Tu Hostal Base (${dayObj.city})</span>
+                        <h4 class="font-bold text-sm mt-0.5">${dayObj.hostelName}</h4>
+                        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dayObj.hostelName + ' ' + dayObj.city)}" target="_blank" class="inline-block mt-1.5 text-xs font-bold text-terracotta underline">Cómo llegar en Google Maps →</a>
+                    </div>
+                `);
+            markersLayerGroup.addLayer(hostelMarker);
+            coordsList.push(dayObj.hostelCoords);
+
+            // 2. Add Numbered Stop Pins
+            dayObj.stops.forEach((stop, idx) => {
+                const num = idx + 1;
+                const stopIcon = L.divIcon({
+                    className: '',
+                    html: `<div class="custom-pin" style="width:28px;height:28px;background:#C85A32;">${num}</div>`,
+                    iconSize: [28, 28],
+                    iconAnchor: [14, 14]
+                });
+
+                const marker = L.marker(stop.coords, { icon: stopIcon })
+                    .bindPopup(`
+                        <div class="p-1 max-w-[220px]">
+                            <span class="text-[10px] font-mono font-bold text-terracotta">PARADA #${num} • ${stop.time}</span>
+                            <h4 class="font-bold text-xs sm:text-sm mt-0.5">${stop.title}</h4>
+                            <p class="text-[11px] text-stone-600 mt-1">${stop.tip}</p>
+                            <div class="mt-2 flex items-center justify-between">
+                                <span class="text-[11px] font-mono font-bold">${formatMoney(stop.costEUR)}</span>
+                                <a href="https://www.google.com/maps/search/?api=1&query=${stop.mapsQuery}" target="_blank" class="text-[11px] font-bold text-terracotta underline">Abrir en Maps →</a>
+                            </div>
+                        </div>
+                    `);
+                markersLayerGroup.addLayer(marker);
+                coordsList.push(stop.coords);
+            });
+
+            // 3. Draw Dashed Walking Route Polyline
+            routePolyline = L.polyline(coordsList, {
                 color: '#C85A32',
                 weight: 3.5,
-                opacity: 0.8,
+                opacity: 0.85,
                 dashArray: '8, 8'
             }).addTo(map);
 
-            if (latlngs.length > 0) {
-                map.fitBounds(L.latLngBounds(latlngs), { padding: [36, 36], maxZoom: 15 });
+            currentBoundsCoords = coordsList;
+            fitMapToCurrentBounds();
+
+            // Update Subtitle & Quick Bar
+            const mapSub = document.getElementById('mapSubtitle');
+            if (mapSub) {
+                mapSub.textContent = `Mostrando ruta: ${dayObj.shortTitle} (${dayObj.stops.length} paradas + Hostal)`;
             }
 
-            document.getElementById('mapSubtitle').textContent = `Mostrando ruta: ${dayObj.shortTitle} (${dayObj.city})`;
+            // Build Quick Stop Jump Buttons
+            const quickBar = document.getElementById('mapStopQuickBar');
+            if (quickBar) {
+                let qbHtml = `<button onclick="focusMapPoint(${dayObj.hostelCoords[0]}, ${dayObj.hostelCoords[1]}, '${dayObj.hostelName.replace(/'/g, '')}')" class="shrink-0 px-2.5 py-1 rounded-lg bg-emerald-600/15 text-emerald-700 dark:text-emerald-300 text-xs font-bold hover:bg-emerald-600 hover:text-white transition">🏠 Hostal</button>`;
+                dayObj.stops.forEach((s, i) => {
+                    qbHtml += `<button onclick="focusMapPoint(${s.coords[0]}, ${s.coords[1]}, '${s.mapsQuery}')" class="shrink-0 px-2.5 py-1 rounded-lg bg-stone-100 dark:bg-slate-700 text-stone-700 dark:text-slate-200 text-xs font-semibold hover:bg-terracotta hover:text-white transition">#${i + 1} ${s.title.split(' ')[0]}</button>`;
+                });
+                quickBar.innerHTML = qbHtml;
+            }
+
+            // Build Full Multi-Stop Walking Route Link for Google Maps
+            const routeBtn = document.getElementById('fullDayGmapsRouteBtn');
+            if (routeBtn) {
+                const origin = `${dayObj.hostelCoords[0]},${dayObj.hostelCoords[1]}`;
+                const lastStop = dayObj.stops[dayObj.stops.length - 1];
+                const destination = `${lastStop.coords[0]},${lastStop.coords[1]}`;
+                const waypoints = dayObj.stops.slice(0, -1).map(s => `${s.coords[0]},${s.coords[1]}`).join('|');
+                routeBtn.href = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&waypoints=${encodeURIComponent(waypoints)}&travelmode=walking`;
+                routeBtn.innerHTML = `<i data-lucide="footprints" class="w-4 h-4"></i> Abrir Ruta a Pie del Día ${dayObj.id} (${dayObj.city}) en Google Maps`;
+            }
+
+            if (isGoogleEmbedActive && dayObj.stops[0]) {
+                toggleGoogleEmbedMode(dayObj.stops[0].mapsQuery);
+            }
         }
 
-        function showAllCityPins(cityKey) {
-            if (!map || !markersLayer) return;
-            markersLayer.clearLayers();
-            if (routeLine) {
-                map.removeLayer(routeLine);
-                routeLine = null;
+        function focusMapPoint(lat, lng, queryStr) {
+            if (isGoogleEmbedActive && queryStr) {
+                toggleGoogleEmbedMode(queryStr);
+                return;
             }
-
-            const targetCity = cityKey === 'madrid' ? 'Madrid' : 'Roma';
-            const latlngs = [];
-
-            TRIP_DAYS.filter(d => d.city === targetCity).forEach(dayObj => {
-                dayObj.stops.forEach(stop => {
-                    latlngs.push(stop.coords);
-                    const m = L.marker(stop.coords, {
-                        icon: createCustomIcon('•', '#C85A32')
-                    }).bindPopup(`
-                        <div class="p-1 max-w-[220px] space-y-1">
-                            <span class="text-[10px] font-bold uppercase text-terracotta">${dayObj.shortTitle}</span>
-                            <p class="font-bold text-sm">${stop.title}</p>
-                            <p class="text-xs text-stone-600">${stop.tip}</p>
-                            <a href="https://www.google.com/maps/search/?api=1&query=${stop.mapsQuery}" target="_blank" class="inline-block text-xs font-bold text-terracotta underline">Google Maps →</a>
-                        </div>
-                    `);
-                    markersLayer.addLayer(m);
-                });
-            });
-
-            FOOD_SPOTS.filter(f => f.city === targetCity).forEach(food => {
-                latlngs.push(food.coords);
-                const fm = L.marker(food.coords, {
-                    icon: createCustomIcon('🍕', '#D97706')
-                }).bindPopup(`
-                    <div class="p-1 max-w-[220px] space-y-1">
-                        <span class="text-[10px] font-bold uppercase text-amber-600">Gastronomía Low-Cost</span>
-                        <p class="font-bold text-sm">${food.name}</p>
-                        <p class="text-xs text-stone-600">${food.mustOrder} (${formatMoney(food.priceEUR)})</p>
-                        <a href="https://www.google.com/maps/search/?api=1&query=${food.mapsQuery}" target="_blank" class="inline-block text-xs font-bold text-terracotta underline">Google Maps →</a>
-                    </div>
-                `);
-                markersLayer.addLayer(fm);
-            });
-
-            if (latlngs.length > 0) {
-                map.fitBounds(L.latLngBounds(latlngs), { padding: [35, 35] });
-            }
-            document.getElementById('mapSubtitle').textContent = `Todos los puntos recomendados en ${targetCity}`;
+            if (!map) return;
+            map.flyTo([lat, lng], 16, { duration: 0.8 });
         }
 
         function fitMapToCurrentBounds() {
-            updateMapForDay(selectedDayId);
+            if (!map || !currentBoundsCoords.length) return;
+            setTimeout(() => {
+                map.invalidateSize();
+                const bounds = L.latLngBounds(currentBoundsCoords);
+                map.fitBounds(bounds, { padding: [36, 36], maxZoom: 15 });
+            }, 100);
         }
 
-        function focusStopOnMap(lat, lng, stopId) {
-            if (!map) return;
-            map.setView([lat, lng], 16, { animate: true });
-            // Scroll map into view on mobile
-            if (window.innerWidth < 1024) {
-                document.getElementById('tripMap').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        function showAllCityPins(cityKey) {
+            if (!map || !markersLayerGroup) return;
+            isGoogleEmbedActive = false;
+            document.getElementById('tripMap').classList.remove('hidden');
+            document.getElementById('googleMapEmbedWrapper').classList.add('hidden');
+
+            markersLayerGroup.clearLayers();
+            if (routePolyline) {
+                map.removeLayer(routePolyline);
+                routePolyline = null;
+            }
+
+            const targetCity = cityKey === 'madrid' ? 'Madrid' : 'Roma';
+            const coords = [];
+
+            FOOD_SPOTS.filter(f => f.city === targetCity).forEach(food => {
+                const foodIcon = L.divIcon({
+                    className: '',
+                    html: `<div class="custom-pin" style="width:28px;height:28px;background:#F59E0B;">🍕</div>`,
+                    iconSize: [28, 28],
+                    iconAnchor: [14, 14]
+                });
+                const m = L.marker(food.coords, { icon: foodIcon }).bindPopup(`
+                    <div class="p-1">
+                        <span class="text-[10px] font-bold uppercase text-amber-600">Gastronomía Low-Cost</span>
+                        <h4 class="font-bold text-sm">${food.name}</h4>
+                        <p class="text-xs text-stone-600 mt-0.5">${food.mustOrder}</p>
+                        <p class="text-xs font-mono font-bold text-terracotta mt-1">${formatMoney(food.priceEUR)}</p>
+                    </div>
+                `);
+                markersLayerGroup.addLayer(m);
+                coords.push(food.coords);
+            });
+
+            TRIP_DAYS.filter(d => d.city === targetCity).forEach(day => {
+                day.stops.forEach(s => {
+                    const icon = L.divIcon({
+                        className: '',
+                        html: `<div class="custom-pin" style="width:24px;height:24px;background:#C85A32;font-size:10px;">D${day.id}</div>`,
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 12]
+                    });
+                    const m = L.marker(s.coords, { icon }).bindPopup(`
+                        <div class="p-1">
+                            <span class="text-[10px] font-bold text-terracotta">${day.shortTitle}</span>
+                            <h4 class="font-bold text-xs mt-0.5">${s.title}</h4>
+                        </div>
+                    `);
+                    markersLayerGroup.addLayer(m);
+                    coords.push(s.coords);
+                });
+            });
+
+            if (coords.length) {
+                currentBoundsCoords = coords;
+                fitMapToCurrentBounds();
             }
         }
 
@@ -1448,276 +1840,287 @@
         // ==========================================
         function selectDay(dayId) {
             selectedDayId = dayId;
-            localStorage.setItem('ana_trip_day', dayId);
-            switchMainTab('itinerary');
+            localStorage.setItem('ana_trip_day', String(dayId));
             renderDaySelector();
-            renderDayTimeline();
-            updateMapForDay(dayId);
+            renderSelectedDayContent();
         }
 
         function renderDaySelector() {
             const bar = document.getElementById('daySelectorBar');
+            if (!bar) return;
+
             bar.innerHTML = TRIP_DAYS.map(day => {
-                const isActive = day.id === selectedDayId;
-                const totalStops = day.stops.length;
-                const doneStops = day.stops.filter(s => checkedActivities[s.id]).length;
-                return `
-                    <button onclick="selectDay(${day.id})" class="shrink-0 px-4 py-2.5 rounded-2xl border text-left transition flex items-center gap-2.5 ${
-                        isActive 
-                        ? 'bg-terracotta text-white border-terracotta shadow-md shadow-terracotta/20' 
-                        : 'bg-white dark:bg-slate-800 text-stone-700 dark:text-slate-300 border-stone-200/80 dark:border-slate-700 hover:border-terracotta'
-                    }">
-                        <div>
-                            <div class="flex items-center gap-1.5">
-                                <span class="text-[10px] font-bold uppercase tracking-wider ${isActive ? 'text-orange-100' : 'text-terracotta'}">Día ${day.id} • ${day.city}</span>
-                                ${doneStops === totalStops ? '<span class="text-[10px] bg-emerald-500 text-white px-1.5 rounded-full">✓</span>' : ''}
-                            </div>
-                            <p class="font-bold text-xs sm:text-sm whitespace-nowrap">${day.shortTitle}</p>
-                        </div>
-                    </button>
-                `;
+                const isSelected = day.id === selectedDayId;
+                const doneCount = day.stops.filter(s => checkedActivities[s.id]).length;
+                const badgeColor = day.city === 'Madrid' ? 'bg-amber-500/20 text-amber-300' : 'bg-white/20 text-white';
+
+                if (isSelected) {
+                    return `
+                        <button onclick="selectDay(${day.id})" class="shrink-0 flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-terracotta text-white font-bold text-xs sm:text-sm shadow-md transition">
+                            <span>${day.shortTitle}</span>
+                            <span class="px-2 py-0.5 rounded-full text-[11px] font-mono ${badgeColor}">${doneCount}/${day.stops.length}</span>
+                        </button>
+                    `;
+                } else {
+                    return `
+                        <button onclick="selectDay(${day.id})" class="shrink-0 flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white dark:bg-slate-800 border border-stone-200/80 dark:border-slate-700 text-stone-700 dark:text-slate-300 hover:border-terracotta font-semibold text-xs sm:text-sm transition">
+                            <span>${day.shortTitle}</span>
+                            <span class="px-2 py-0.5 rounded-full text-[11px] font-mono bg-stone-100 dark:bg-slate-700 text-stone-500 dark:text-slate-400">${doneCount}/${day.stops.length}</span>
+                        </button>
+                    `;
+                }
             }).join('');
         }
 
-        function renderDayTimeline() {
-            const day = TRIP_DAYS.find(d => d.id === selectedDayId);
-            if (!day) return;
+        function renderSelectedDayContent() {
+            const dayObj = TRIP_DAYS.find(d => d.id === selectedDayId) || TRIP_DAYS[0];
+            const summaryEl = document.getElementById('daySummaryCard');
+            const timelineEl = document.getElementById('timelineContainer');
+            const noteInput = document.getElementById('dayNoteInput');
 
-            const doneCount = day.stops.filter(s => checkedActivities[s.id]).length;
+            const doneCount = dayObj.stops.filter(s => checkedActivities[s.id]).length;
+            const totalDayCost = dayObj.stops.reduce((acc, s) => acc + s.costEUR, 0);
 
-            // Render Summary Card
-            document.getElementById('daySummaryCard').innerHTML = `
-                <div class="flex flex-wrap items-start justify-between gap-3">
-                    <div class="space-y-1">
-                        <div class="inline-flex items-center gap-2">
-                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-terracotta/15 text-terracotta">Día ${day.id} • ${day.city}</span>
-                            <span class="text-xs font-medium text-stone-500 dark:text-slate-400">Base: <strong>${day.hostelName}</strong></span>
-                        </div>
-                        <h2 class="font-editorial font-bold text-2xl sm:text-3xl text-stone-900 dark:text-white leading-tight">${day.title}</h2>
-                        <p class="text-xs sm:text-sm text-stone-600 dark:text-slate-300">${day.subtitle}</p>
-                    </div>
-                    <div class="bg-stone-50 dark:bg-slate-900/80 px-3.5 py-2 rounded-xl border border-stone-200/70 dark:border-slate-700 text-right shrink-0">
-                        <p class="text-[10px] uppercase tracking-wider text-stone-400 font-semibold">Presupuesto Día ${day.id}</p>
-                        <p class="font-mono font-bold text-sm sm:text-base text-terracotta">${formatMoney(day.dailyBudgetEUR)}</p>
-                        <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">${doneCount}/${day.stops.length} completados</p>
-                    </div>
-                </div>
-            `;
-
-            // Render Stops
-            const container = document.getElementById('timelineContainer');
-            container.innerHTML = day.stops.map((stop, idx) => {
-                const isDone = !!checkedActivities[stop.id];
-                return `
-                    <div class="rounded-2xl bg-white dark:bg-slate-800/95 border transition p-4 sm:p-5 shadow-sm ${
-                        isDone ? 'border-emerald-500/40 bg-emerald-50/20 dark:bg-emerald-950/10 opacity-85' : 'border-stone-200/80 dark:border-slate-700'
-                    }">
-                        <div class="flex items-start gap-3.5">
-                            <!-- Interactive Checkbox -->
-                            <button onclick="toggleActivityCheck('${stop.id}')" class="mt-0.5 w-6 h-6 rounded-lg border-2 flex items-center justify-center shrink-0 transition ${
-                                isDone ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-stone-300 dark:border-slate-600 hover:border-terracotta'
-                            }" title="Marcar actividad como realizada">
-                                ${isDone ? '✓' : `<span class="text-[11px] font-bold text-stone-400">${idx + 1}</span>`}
-                            </button>
-
-                            <div class="flex-1 min-w-0 space-y-2">
-                                <div class="flex flex-wrap items-center justify-between gap-2">
-                                    <div class="flex flex-wrap items-center gap-2">
-                                        <span class="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-stone-100 dark:bg-slate-700 text-stone-800 dark:text-slate-200">${stop.time}</span>
-                                        <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-terracotta/10 text-terracotta">${stop.category}</span>
-                                    </div>
-                                    <span class="font-mono text-xs font-bold px-2.5 py-0.5 rounded-full ${
-                                        stop.costEUR === 0 
-                                        ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300' 
-                                        : 'bg-amber-500/15 text-amber-800 dark:text-amber-300'
-                                    }">${formatMoney(stop.costEUR)}</span>
-                                </div>
-
-                                <h3 class="font-bold text-base sm:text-lg text-stone-900 dark:text-white ${isDone ? 'line-through text-stone-400 dark:text-slate-500' : ''}">
-                                    ${stop.title}
-                                </h3>
-
-                                <p class="text-xs sm:text-sm text-stone-600 dark:text-slate-300 leading-relaxed">
-                                    ${stop.desc}
-                                </p>
-
-                                <!-- Insider Tip Box -->
-                                <div class="rounded-xl bg-amber-500/10 border border-amber-500/20 px-3 py-2 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2">
-                                    <i data-lucide="lightbulb" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
-                                    <span><strong>Tip de ahorro:</strong> ${stop.tip}</span>
-                                </div>
-
-                                <!-- Action Buttons -->
-                                <div class="flex flex-wrap items-center gap-2 pt-1">
-                                    <button onclick="focusStopOnMap(${stop.coords[0]}, ${stop.coords[1]}, '${stop.id}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-100 dark:bg-slate-700/80 hover:bg-terracotta hover:text-white text-stone-700 dark:text-slate-200 text-xs font-semibold transition">
-                                        <i data-lucide="locate-fixed" class="w-3.5 h-3.5"></i> Ver en Mapa
-                                    </button>
-                                    <a href="https://www.google.com/maps/search/?api=1&query=${stop.mapsQuery}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-100 dark:bg-slate-700/80 hover:bg-stone-200 text-stone-700 dark:text-slate-200 text-xs font-semibold transition">
-                                        <i data-lucide="external-link" class="w-3.5 h-3.5 text-terracotta"></i> Abrir Google Maps
-                                    </a>
-                                </div>
+            if (summaryEl) {
+                summaryEl.innerHTML = `
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-terracotta/15 text-terracotta">
+                                    DÍA ${dayObj.id} • ${dayObj.city.toUpperCase()}
+                                </span>
+                                <span class="text-xs text-stone-500 dark:text-slate-400 flex items-center gap-1">
+                                    <i data-lucide="bed-double" class="w-3.5 h-3.5 text-emerald-600"></i> Base: <strong>${dayObj.hostelName}</strong>
+                                </span>
                             </div>
+                            <h2 class="font-editorial font-bold text-2xl sm:text-3xl text-stone-900 dark:text-white leading-tight">${dayObj.title}</h2>
+                            <p class="text-xs sm:text-sm text-stone-600 dark:text-slate-300">${dayObj.subtitle}</p>
+                        </div>
+                        <div class="bg-stone-50 dark:bg-slate-900/80 px-3.5 py-2 rounded-xl border border-stone-200/70 dark:border-slate-700 text-right shrink-0">
+                            <p class="text-[10px] uppercase tracking-wider text-stone-400 font-bold">Gasto Estimado del Día</p>
+                            <p class="font-mono font-bold text-base text-terracotta">${formatMoney(totalDayCost)}</p>
+                            <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">${doneCount} de ${dayObj.stops.length} completados</p>
                         </div>
                     </div>
                 `;
-            }).join('');
-
-            // Load personal note for this day
-            const noteInput = document.getElementById('dayNoteInput');
-            if (noteInput) {
-                noteInput.value = dayNotes[selectedDayId] || '';
             }
 
-            lucide.createIcons();
-            updateHeaderProgress();
+            if (timelineEl) {
+                timelineEl.innerHTML = dayObj.stops.map((stop, index) => {
+                    const isDone = !!checkedActivities[stop.id];
+                    const num = index + 1;
+                    return `
+                        <div class="rounded-2xl bg-white dark:bg-slate-800 border ${isDone ? 'border-emerald-500/50 bg-emerald-50/20 dark:bg-emerald-950/10' : 'border-stone-200/80 dark:border-slate-700'} p-4 sm:p-5 shadow-sm transition hover:shadow-md">
+                            <div class="flex items-start gap-3.5">
+                                <!-- Interactive Check / Number Button -->
+                                <button onclick="toggleActivityCheck('${stop.id}')" class="mt-0.5 w-8 h-8 rounded-xl flex items-center justify-center font-mono font-bold text-xs shrink-0 transition ${isDone ? 'bg-emerald-600 text-white shadow-sm' : 'bg-terracotta/15 text-terracotta hover:bg-terracotta hover:text-white'}" title="Marcar como completado">
+                                    ${isDone ? '✓' : num}
+                                </button>
+
+                                <div class="flex-1 min-w-0 space-y-2">
+                                    <div class="flex flex-wrap items-center justify-between gap-2">
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-stone-100 dark:bg-slate-700 text-stone-700 dark:text-slate-200">${stop.time}</span>
+                                            <span class="text-[11px] font-bold uppercase tracking-wider text-terracotta">${stop.category}</span>
+                                        </div>
+                                        <span class="font-mono text-xs font-bold px-2.5 py-0.5 rounded-full ${stop.costEUR === 0 ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300' : 'bg-amber-500/15 text-amber-800 dark:text-amber-300'}">
+                                            ${formatMoney(stop.costEUR)}
+                                        </span>
+                                    </div>
+
+                                    <h3 class="font-bold text-base sm:text-lg text-stone-900 dark:text-white ${isDone ? 'line-through opacity-60' : ''}">${stop.title}</h3>
+
+                                    <p class="text-xs text-emerald-700 dark:text-emerald-400 font-medium flex items-center gap-1.5">
+                                        <i data-lucide="footprints" class="w-3.5 h-3.5 shrink-0"></i> ${stop.fromPrev}
+                                    </p>
+
+                                    <p class="text-xs sm:text-sm text-stone-600 dark:text-slate-300 leading-relaxed">${stop.desc}</p>
+
+                                    <div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2">
+                                        <i data-lucide="lightbulb" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+                                        <span><strong>Tip Ahorro:</strong> ${stop.tip}</span>
+                                    </div>
+
+                                    <div class="pt-1 flex flex-wrap items-center gap-2">
+                                        <button onclick="focusMapPoint(${stop.coords[0]}, ${stop.coords[1]}, '${stop.mapsQuery}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-100 dark:bg-slate-700 hover:bg-terracotta hover:text-white text-stone-700 dark:text-slate-200 text-xs font-semibold transition">
+                                            <i data-lucide="locate-fixed" class="w-3.5 h-3.5"></i> Ver en el Mapa (#${num})
+                                        </button>
+                                        <a href="https://www.google.com/maps/search/?api=1&query=${stop.mapsQuery}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-100 dark:bg-slate-700 hover:bg-stone-200 text-stone-700 dark:text-slate-200 text-xs font-semibold transition">
+                                            <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Google Maps
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            if (noteInput) {
+                noteInput.value = dayNotes[dayObj.id] || '';
+            }
+
+            updateMapForDay(dayObj);
+            updateGlobalProgressKPI();
+            if (window.lucide) lucide.createIcons();
         }
 
         function toggleActivityCheck(stopId) {
             checkedActivities[stopId] = !checkedActivities[stopId];
             localStorage.setItem('ana_trip_checked', JSON.stringify(checkedActivities));
             renderDaySelector();
-            renderDayTimeline();
+            renderSelectedDayContent();
         }
 
-        function updateHeaderProgress() {
-            let total = 0;
-            let done = 0;
+        function updateGlobalProgressKPI() {
+            let totalStops = 0;
+            let completedStops = 0;
             TRIP_DAYS.forEach(d => {
                 d.stops.forEach(s => {
-                    total++;
-                    if (checkedActivities[s.id]) done++;
+                    totalStops++;
+                    if (checkedActivities[s.id]) completedStops++;
                 });
             });
-            const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-            document.getElementById('headerProgressText').textContent = `${done} / ${total} planes (${pct}%)`;
-            document.getElementById('headerProgressBar').style.width = `${pct}%`;
+            const pct = totalStops > 0 ? Math.round((completedStops / totalStops) * 100) : 0;
+            const textEl = document.getElementById('headerProgressText');
+            const barEl = document.getElementById('headerProgressBar');
+            if (textEl) textEl.textContent = `${completedStops} / ${totalStops} planes (${pct}%)`;
+            if (barEl) barEl.style.width = `${pct}%`;
         }
 
         function saveDayNote(val) {
             dayNotes[selectedDayId] = val;
             localStorage.setItem('ana_trip_notes', JSON.stringify(dayNotes));
             const badge = document.getElementById('noteSavedBadge');
-            badge.style.opacity = '1';
-            setTimeout(() => { badge.style.opacity = '0'; }, 1500);
+            if (badge) {
+                badge.classList.remove('opacity-0');
+                setTimeout(() => badge.classList.add('opacity-0'), 1500);
+            }
         }
 
         // ==========================================
-        // 7. RENDER FOOD DIRECTORY
+        // 7. RENDER FOOD DIRECTORY & BUDGET TRACKER
         // ==========================================
         let currentFoodFilter = 'all';
 
-        function filterFood(filterKey) {
-            currentFoodFilter = filterKey;
-            ['all', 'Roma', 'Madrid'].forEach(k => {
-                const btn = document.getElementById('foodFilter-' + k);
-                if (k === filterKey) {
+        function filterFood(cityFilter) {
+            currentFoodFilter = cityFilter;
+            ['all', 'Roma', 'Madrid'].forEach(f => {
+                const btn = document.getElementById('foodFilter-' + f);
+                if (!btn) return;
+                if (f === cityFilter) {
                     btn.className = 'food-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-slate-700 text-terracotta shadow-sm';
                 } else {
                     btn.className = 'food-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-stone-600 dark:text-slate-300';
                 }
             });
-            renderFoodGrid();
+            renderFoodDirectory();
         }
 
-        function renderFoodGrid() {
+        function renderFoodDirectory() {
             const container = document.getElementById('foodGridContainer');
-            const list = currentFoodFilter === 'all' ? FOOD_SPOTS : FOOD_SPOTS.filter(f => f.city === currentFoodFilter);
+            if (!container) return;
 
-            container.innerHTML = list.map(item => `
+            const filtered = currentFoodFilter === 'all'
+                ? FOOD_SPOTS
+                : FOOD_SPOTS.filter(s => s.city === currentFoodFilter);
+
+            container.innerHTML = filtered.map(spot => `
                 <div class="rounded-2xl bg-white dark:bg-slate-800 border border-stone-200/80 dark:border-slate-700 p-5 shadow-sm flex flex-col justify-between space-y-3">
                     <div class="space-y-2">
                         <div class="flex items-center justify-between gap-2">
-                            <span class="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-terracotta/15 text-terracotta">${item.city}</span>
-                            <span class="font-mono font-bold text-sm text-emerald-700 dark:text-emerald-400">~${formatMoney(item.priceEUR)}</span>
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${spot.city === 'Roma' ? 'bg-terracotta/15 text-terracotta' : 'bg-amber-500/15 text-amber-700 dark:text-amber-300'}">${spot.city}</span>
+                            <span class="font-mono font-bold text-sm text-emerald-700 dark:text-emerald-400">~${formatMoney(spot.priceEUR)}</span>
                         </div>
-                        <h3 class="font-editorial font-bold text-xl text-stone-900 dark:text-white">${item.name}</h3>
+                        <h3 class="font-editorial font-bold text-xl text-stone-900 dark:text-white">${spot.name}</h3>
                         <p class="text-xs text-stone-500 dark:text-slate-400 flex items-center gap-1">
-                            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-terracotta shrink-0"></i> ${item.zone}
+                            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-terracotta shrink-0"></i> ${spot.zone}
                         </p>
-                        <p class="text-xs text-stone-600 dark:text-slate-300 leading-relaxed">${item.desc}</p>
-                        <div class="p-2.5 rounded-xl bg-amber-500/10 text-xs text-amber-900 dark:text-amber-200">
-                            <strong>Qué pedir:</strong> ${item.mustOrder}
+                        <p class="text-xs text-stone-600 dark:text-slate-300 leading-relaxed">${spot.desc}</p>
+                        <div class="p-2.5 rounded-xl bg-stone-50 dark:bg-slate-900/70 border border-stone-200/60 dark:border-slate-700 text-xs">
+                            <strong class="text-terracotta">Qué pedir:</strong> ${spot.mustOrder}
                         </div>
                     </div>
-                    <a href="https://www.google.com/maps/search/?api=1&query=${item.mapsQuery}" target="_blank" rel="noopener noreferrer" class="w-full py-2 rounded-xl bg-stone-100 dark:bg-slate-700 hover:bg-terracotta hover:text-white text-stone-800 dark:text-slate-200 font-bold text-xs transition flex items-center justify-center gap-1.5">
-                        <i data-lucide="navigation" class="w-3.5 h-3.5"></i> Cómo llegar en Google Maps
+                    <a href="https://www.google.com/maps/search/?api=1&query=${spot.mapsQuery}" target="_blank" rel="noopener noreferrer" class="w-full py-2 rounded-xl bg-stone-100 dark:bg-slate-700 hover:bg-terracotta hover:text-white text-stone-800 dark:text-slate-200 font-bold text-xs transition flex items-center justify-center gap-1.5">
+                        <i data-lucide="navigation" class="w-3.5 h-3.5"></i> Ir con Google Maps
                     </a>
                 </div>
             `).join('');
-            lucide.createIcons();
+
+            if (window.lucide) lucide.createIcons();
         }
 
-        // ==========================================
-        // 8. RENDER INTERACTIVE BUDGET TRACKER
-        // ==========================================
         function renderBudgetTracker() {
-            const baseEstimatedEUR = 181.50;
-            const spentEUR = budgetItems.filter(i => i.paid).reduce((acc, i) => acc + Number(i.amountEUR), 0);
-            const remainingEUR = Math.max(0, baseEstimatedEUR - spentEUR);
-
-            document.getElementById('headerBudgetDisplay').textContent = formatMoney(baseEstimatedEUR);
-            document.getElementById('budgetTotalEstimated').textContent = formatMoney(baseEstimatedEUR);
-            document.getElementById('budgetTotalSpent').textContent = formatMoney(spentEUR);
-            document.getElementById('budgetRemainingText').textContent = `Restante frente a meta base: ${formatMoney(remainingEUR)}`;
-
             const listEl = document.getElementById('budgetItemsList');
-            listEl.innerHTML = budgetItems.map(item => `
-                <div class="py-3 flex items-center justify-between gap-3">
-                    <div class="flex items-center gap-3 min-w-0">
-                        <button onclick="toggleBudgetPaid('${item.id}')" class="w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition ${
-                            item.paid ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-stone-300 dark:border-slate-600'
-                        }">
-                            ${item.paid ? '✓' : ''}
-                        </button>
-                        <div class="min-w-0">
-                            <p class="text-xs sm:text-sm font-semibold text-stone-900 dark:text-white truncate ${item.paid ? 'line-through text-stone-400' : ''}">${item.title}</p>
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-stone-400">${item.category} • ${item.paid ? 'Pagado' : 'Pendiente'}</span>
+            const totalEstEl = document.getElementById('budgetTotalEstimated');
+            const totalSpentEl = document.getElementById('budgetTotalSpent');
+            const remEl = document.getElementById('budgetRemainingText');
+            const headerBudgetEl = document.getElementById('headerBudgetDisplay');
+
+            const totalEstimatedEUR = budgetItems.reduce((acc, item) => acc + Number(item.amountEUR), 0);
+            const totalPaidEUR = budgetItems.filter(i => i.paid).reduce((acc, item) => acc + Number(item.amountEUR), 0);
+            const remainingEUR = Math.max(0, totalEstimatedEUR - totalPaidEUR);
+
+            if (totalEstEl) totalEstEl.textContent = formatMoney(totalEstimatedEUR);
+            if (totalSpentEl) totalSpentEl.textContent = formatMoney(totalPaidEUR);
+            if (remEl) remEl.textContent = `Pendiente por ejecutar: ${formatMoney(remainingEUR)}`;
+            if (headerBudgetEl) headerBudgetEl.textContent = formatMoney(totalEstimatedEUR);
+
+            if (listEl) {
+                listEl.innerHTML = budgetItems.map(item => `
+                    <div class="py-3 flex items-center justify-between gap-3">
+                        <label class="flex items-center gap-3 cursor-pointer flex-1 min-w-0">
+                            <input type="checkbox" ${item.paid ? 'checked' : ''} onchange="toggleBudgetItemPaid('${item.id}')" class="w-4 h-4 rounded text-terracotta focus:ring-terracotta cursor-pointer">
+                            <div class="min-w-0">
+                                <p class="text-xs sm:text-sm font-semibold text-stone-800 dark:text-slate-200 truncate ${item.paid ? 'line-through opacity-60' : ''}">${item.title}</p>
+                                <span class="text-[10px] uppercase tracking-wider font-bold text-stone-400">${item.category}</span>
+                            </div>
+                        </label>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <span class="font-mono font-bold text-xs sm:text-sm ${item.paid ? 'text-emerald-600 dark:text-emerald-400' : 'text-stone-900 dark:text-white'}">${formatMoney(item.amountEUR)}</span>
+                            ${item.id.startsWith('cust_') ? `<button onclick="deleteBudgetItem('${item.id}')" class="text-stone-400 hover:text-rose-500 p-1" title="Eliminar"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>` : ''}
                         </div>
                     </div>
-                    <div class="flex items-center gap-2 shrink-0">
-                        <span class="font-mono font-bold text-xs sm:text-sm ${item.paid ? 'text-emerald-600 dark:text-emerald-400' : 'text-stone-800 dark:text-slate-200'}">
-                            ${formatMoney(item.amountEUR)}
-                        </span>
-                        ${item.id.startsWith('cust_') ? `
-                            <button onclick="deleteBudgetItem('${item.id}')" class="text-stone-400 hover:text-rose-500 p-1" title="Eliminar">
-                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                            </button>
-                        ` : ''}
-                    </div>
-                </div>
-            `).join('');
-            lucide.createIcons();
+                `).join('');
+            }
+            if (window.lucide) lucide.createIcons();
         }
 
-        function toggleBudgetPaid(itemId) {
-            budgetItems = budgetItems.map(item => item.id === itemId ? { ...item, paid: !item.paid } : item);
-            localStorage.setItem('ana_trip_budget', JSON.stringify(budgetItems));
-            renderBudgetTracker();
+        function toggleBudgetItemPaid(id) {
+            const item = budgetItems.find(i => i.id === id);
+            if (item) {
+                item.paid = !item.paid;
+                localStorage.setItem('ana_trip_budget', JSON.stringify(budgetItems));
+                renderBudgetTracker();
+            }
         }
 
         function addCustomExpense(e) {
             e.preventDefault();
-            const title = document.getElementById('expTitle').value.trim();
-            const amount = parseFloat(document.getElementById('expAmount').value);
-            const category = document.getElementById('expCategory').value;
-            if (!title || isNaN(amount)) return;
+            const titleEl = document.getElementById('expTitle');
+            const amountEl = document.getElementById('expAmount');
+            const catEl = document.getElementById('expCategory');
+
+            const amount = parseFloat(amountEl.value);
+            if (!titleEl.value.trim() || isNaN(amount)) return;
 
             budgetItems.unshift({
                 id: 'cust_' + Date.now(),
-                title,
-                category,
+                title: titleEl.value.trim(),
+                category: catEl.value,
                 amountEUR: amount,
                 paid: true
             });
+
             localStorage.setItem('ana_trip_budget', JSON.stringify(budgetItems));
-            document.getElementById('expTitle').value = '';
-            document.getElementById('expAmount').value = '';
+            titleEl.value = '';
+            amountEl.value = '';
             renderBudgetTracker();
-            showToast('Gasto registrado en la billetera');
+            showToast('Gasto registrado en tu billetera');
         }
 
-        function deleteBudgetItem(itemId) {
-            budgetItems = budgetItems.filter(i => i.id !== itemId);
+        function deleteBudgetItem(id) {
+            budgetItems = budgetItems.filter(i => i.id !== id);
             localStorage.setItem('ana_trip_budget', JSON.stringify(budgetItems));
             renderBudgetTracker();
         }
@@ -1730,33 +2133,109 @@
         }
 
         // ==========================================
-        // 9. NAVIGATION, MODALS & UTILITIES
+        // 8. TOOLKIT: ITALIAN AUDIO PHRASEBOOK & PACKING LIST
         // ==========================================
-        function switchMainTab(tabName) {
-            document.querySelectorAll('.tab-section').forEach(sec => sec.classList.add('hidden'));
-            document.getElementById('tab-' + tabName).classList.remove('hidden');
+        const ITALIAN_PHRASES = [
+            { it: 'Buongiorno, un caffè e un cornetto al banco, per favore.', es: 'Buenos días, un café y un croissant en la barra, por favor (Ahorra servicio de mesa).' },
+            { it: 'Posso lasciare lo zaino qui fino al check-in?', es: '¿Puedo dejar la maleta aquí hasta la hora del check-in?' },
+            { it: 'Un biglietto per il treno FL1 per Roma Trastevere, grazie.', es: 'Un billete para el tren FL1 hacia Roma Trastevere, gracias (8 €).' },
+            { it: 'Scusi, dov\'è la fermata del tram otto?', es: 'Disculpe, ¿dónde está la parada del tranvía 8?' },
+            { it: 'L\'acqua del rubinetto / caraffa va benissimo, grazie.', es: 'Agua de jarra está muy bien, gracias (Evita botellas de 4 €).' },
+            { it: 'Il conto, per favore. Posso pagare con la carta?', es: 'La cuenta, por favor. ¿Puedo pagar con tarjeta?' }
+        ];
 
-            // Update Desktop Tab Styles
+        const PACKING_ITEMS = [
+            { id: 'pk1', text: 'Pasaporte vigente + Pases de abordar Gulf Air (HWHDKH) y Air Europa en el celular' },
+            { id: 'pk2', text: 'Botella de agua reutilizable vacía (Para llenar gratis en los Nasoni de Roma)' },
+            { id: 'pk3', text: 'Adaptador de corriente europeo (Tipo C / F de dos clavijas redondas) + Powerbank' },
+            { id: 'pk4', text: 'Zapatos o tenis más cómodos (Caminarás ~12 km diarios sobre adoquines)' },
+            { id: 'pk5', text: 'Pashmina o bufanda ligera (Obligatoria para cubrir hombros en el Vaticano e iglesias)' },
+            { id: 'pk6', text: 'Chaqueta impermeable ligera / Rompevientos para las noches en Roma y Madrid' },
+            { id: 'pk7', text: 'Tarjeta débito/crédito con pago sin contacto (Contactless para el Bus/Metro Tap & Go)' },
+            { id: 'pk8', text: 'Muda de ropa y aseo en el morral de mano para la noche del jueves 5 Nov en Madrid' },
+            { id: 'pk9', text: 'Candado pequeño para locker del hostal en Roma y Madrid' },
+            { id: 'pk10', text: 'Monedas sueltas de 1 € y 2 € para tasas municipales de alojamiento (City Tax)' }
+        ];
+
+        let checkedPacking = JSON.parse(localStorage.getItem('ana_trip_packing') || '{}');
+
+        function renderToolkit() {
+            const phraseEl = document.getElementById('phrasebookContainer');
+            if (phraseEl) {
+                phraseEl.innerHTML = ITALIAN_PHRASES.map(p => `
+                    <button onclick="speakItalian('${p.it.replace(/'/g, "\\'")}')" class="text-left p-3.5 rounded-xl bg-stone-50 dark:bg-slate-900/70 hover:bg-terracotta/10 border border-stone-200/80 dark:border-slate-700 transition group">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="font-bold text-xs sm:text-sm text-terracotta group-hover:underline">"${p.it}"</span>
+                            <i data-lucide="volume-2" class="w-4 h-4 text-terracotta shrink-0"></i>
+                        </div>
+                        <p class="text-xs text-stone-600 dark:text-slate-400 mt-1">${p.es}</p>
+                    </button>
+                `).join('');
+            }
+
+            const packEl = document.getElementById('packingListContainer');
+            const badgeEl = document.getElementById('packingProgressBadge');
+            const doneCount = PACKING_ITEMS.filter(i => checkedPacking[i.id]).length;
+            if (badgeEl) badgeEl.textContent = `${doneCount}/${PACKING_ITEMS.length}`;
+
+            if (packEl) {
+                packEl.innerHTML = PACKING_ITEMS.map(item => `
+                    <label class="py-2.5 flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" ${checkedPacking[item.id] ? 'checked' : ''} onchange="togglePackingItem('${item.id}')" class="w-4 h-4 rounded text-terracotta focus:ring-terracotta cursor-pointer">
+                        <span class="text-xs sm:text-sm ${checkedPacking[item.id] ? 'line-through text-stone-400' : 'text-stone-800 dark:text-slate-200 font-medium'}">${item.text}</span>
+                    </label>
+                `).join('');
+            }
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function speakItalian(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'it-IT';
+                utterance.rate = 0.92;
+                window.speechSynthesis.speak(utterance);
+                showToast('Pronunciando en italiano 🇮🇹');
+            } else {
+                copyText(text, 'Frase copiada');
+            }
+        }
+
+        function togglePackingItem(id) {
+            checkedPacking[id] = !checkedPacking[id];
+            localStorage.setItem('ana_trip_packing', JSON.stringify(checkedPacking));
+            renderToolkit();
+        }
+
+        // ==========================================
+        // 9. NAVIGATION TABS, MODALS, CLOCKS & UTILS
+        // ==========================================
+        function switchMainTab(tabKey) {
+            document.querySelectorAll('.tab-section').forEach(sec => sec.classList.add('hidden'));
+            const activeSec = document.getElementById('tab-' + tabKey);
+            if (activeSec) activeSec.classList.remove('hidden');
+
             document.querySelectorAll('.main-tab-btn').forEach(btn => {
-                if (btn.dataset.tab === tabName) {
+                if (btn.dataset.tab === tabKey) {
                     btn.className = 'main-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-terracotta text-white shadow-sm transition';
                 } else {
                     btn.className = 'main-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-stone-600 dark:text-slate-300 hover:bg-stone-200/60 dark:hover:bg-slate-800 transition';
                 }
             });
 
-            // Update Mobile Bottom Bar Styles
             document.querySelectorAll('.mobile-tab-btn').forEach(btn => {
-                if (btn.dataset.tab === tabName) {
+                if (btn.dataset.tab === tabKey) {
                     btn.className = 'mobile-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-terracotta font-bold';
                 } else {
                     btn.className = 'mobile-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-stone-500 dark:text-slate-400 font-medium';
                 }
             });
 
-            if (tabName === 'itinerary' && map) {
-                setTimeout(() => { map.invalidateSize(); }, 150);
+            if (tabKey === 'itinerary' && map) {
+                setTimeout(() => fitMapToCurrentBounds(), 120);
             }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function openTaxiModal(title, address, phrase) {
@@ -1770,23 +2249,25 @@
             document.getElementById('taxiModal').classList.add('hidden');
         }
 
-        function copyText(text, message) {
-            const el = document.createElement('textarea');
-            el.value = text;
-            document.body.appendChild(el);
-            el.select();
+        function copyText(text, msg) {
+            const temp = document.createElement('textarea');
+            temp.value = text;
+            document.body.appendChild(temp);
+            temp.select();
             document.execCommand('copy');
-            document.body.removeChild(el);
-            showToast(message || 'Copiado: ' + text);
+            document.body.removeChild(temp);
+            showToast(msg || 'Copiado al portapapeles');
         }
 
-        function showToast(msg) {
+        function showToast(message) {
             const toast = document.getElementById('toastNotification');
-            document.getElementById('toastMessage').textContent = msg;
+            const msgEl = document.getElementById('toastMessage');
+            if (!toast || !msgEl) return;
+            msgEl.textContent = message;
             toast.classList.remove('opacity-0', 'translate-y-2');
             setTimeout(() => {
                 toast.classList.add('opacity-0', 'translate-y-2');
-            }, 2400);
+            }, 2200);
         }
 
         function toggleDarkMode() {
@@ -1796,22 +2277,35 @@
             localStorage.setItem('ana_trip_dark', isDark ? '1' : '0');
         }
 
-        function renderAllViews() {
-            renderDaySelector();
-            renderDayTimeline();
-            renderFoodGrid();
-            renderBudgetTracker();
-            if (map) updateMapForDay(selectedDayId);
+        function updateClocks() {
+            try {
+                const now = new Date();
+                const euTime = now.toLocaleTimeString('es-ES', { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit' });
+                const coTime = now.toLocaleTimeString('es-CO', { timeZone: 'America/Bogota', hour: '2-digit', minute: '2-digit' });
+                const euEl = document.getElementById('clockEurope');
+                const coEl = document.getElementById('clockBogota');
+                if (euEl) euEl.textContent = euTime;
+                if (coEl) coEl.textContent = coTime;
+            } catch (e) {}
         }
 
-        // Initialize on Window Load
+        function renderAllViews() {
+            renderDaySelector();
+            renderSelectedDayContent();
+            renderFoodDirectory();
+            renderBudgetTracker();
+            renderToolkit();
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             if (localStorage.getItem('ana_trip_dark') === '1') {
                 document.documentElement.classList.add('dark');
             }
-            setCurrency(currentCurrency);
             initMap();
-            lucide.createIcons();
+            setCurrency(currentCurrency);
+            updateClocks();
+            setInterval(updateClocks, 30000);
+            if (window.lucide) lucide.createIcons();
         });
     </script>
 </body>
