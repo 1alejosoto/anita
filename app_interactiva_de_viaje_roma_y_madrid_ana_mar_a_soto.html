@@ -1,0 +1,1818 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roma & Madrid 2026 — Travel Companion | Ana María Soto</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Leaflet CSS & JS for Interactive Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+                        sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        alabaster: '#FAF8F5',
+                        charcoal: '#1C1E21',
+                        terracotta: {
+                            DEFAULT: '#C85A32',
+                            dark: '#9A3412',
+                            light: '#FDECE6'
+                        },
+                        olive: {
+                            DEFAULT: '#3B4D3B',
+                            light: '#EBF0EB'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #FAF8F5;
+            color: #1C1E21;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .dark body {
+            background-color: #0F1419;
+            color: #F3F4F6;
+        }
+        .font-editorial {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(200, 90, 50, 0.3); border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(200, 90, 50, 0.6); }
+
+        /* Boarding Pass Perforation Effect */
+        .boarding-pass {
+            position: relative;
+        }
+        .boarding-pass::before, .boarding-pass::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background-color: #FAF8F5;
+            border-radius: 9999px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+        }
+        .dark .boarding-pass::before, .dark .boarding-pass::after {
+            background-color: #0F1419;
+        }
+        .boarding-pass::before { left: -13px; border-right: 1px solid rgba(200,90,50,0.2); }
+        .boarding-pass::after { right: -13px; border-left: 1px solid rgba(200,90,50,0.2); }
+
+        /* Leaflet Custom Popup */
+        .leaflet-popup-content-wrapper {
+            border-radius: 16px !important;
+            padding: 4px !important;
+            box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.25) !important;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+        }
+        .dark .leaflet-popup-content-wrapper, .dark .leaflet-popup-tip {
+            background-color: #1E2530 !important;
+            color: #F3F4F6 !important;
+        }
+        .custom-pin {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            font-weight: 700;
+            font-size: 12px;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            border: 2.5px solid white;
+            transition: transform 0.2s ease;
+        }
+        .custom-pin:hover {
+            transform: scale(1.18);
+        }
+        @media print {
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-24 lg:pb-12 transition-colors duration-300">
+
+    <!-- STICKY EXECUTIVE HEADER -->
+    <header class="sticky top-0 z-40 backdrop-blur-xl bg-[#FAF8F5]/90 dark:bg-[#0F1419]/90 border-b border-stone-200/80 dark:border-slate-800 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <!-- Brand & Traveler Info -->
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-terracotta to-amber-700 flex items-center justify-center text-white shadow-md shadow-terracotta/20 font-editorial font-bold text-2xl">
+                        A
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[11px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-terracotta/15 text-terracotta dark:bg-terracotta/25 dark:text-orange-300">30 Oct – 6 Nov 2026</span>
+                            <span class="hidden sm:inline-flex items-center gap-1 text-xs font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Vuelos y Hostales Pagados
+                            </span>
+                        </div>
+                        <h1 class="font-editorial font-bold text-xl sm:text-2xl tracking-tight text-stone-900 dark:text-white leading-tight">
+                            Ana María Soto Salazar <span class="text-terracotta font-normal italic">• Roma & Madrid</span>
+                        </h1>
+                    </div>
+                </div>
+
+                <!-- Interactive KPI Bar & Controls -->
+                <div class="flex items-center gap-2 sm:gap-3 ml-auto">
+                    <!-- Trip Progress Pill -->
+                    <div class="hidden md:flex items-center gap-2.5 bg-white dark:bg-slate-800/90 px-3.5 py-1.5 rounded-2xl border border-stone-200/80 dark:border-slate-700 shadow-sm">
+                        <div class="text-right">
+                            <p class="text-[10px] uppercase tracking-wider text-stone-500 dark:text-slate-400 font-semibold">Ruta Completada</p>
+                            <p id="headerProgressText" class="text-xs font-bold text-stone-800 dark:text-white">0 / 23 planes (0%)</p>
+                        </div>
+                        <div class="w-16 h-2 bg-stone-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                            <div id="headerProgressBar" class="h-full bg-gradient-to-r from-terracotta to-amber-500 transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Live Budget Pill -->
+                    <button onclick="switchMainTab('budget')" class="flex items-center gap-2 bg-white dark:bg-slate-800/90 hover:border-terracotta px-3 py-1.5 rounded-2xl border border-stone-200/80 dark:border-slate-700 shadow-sm transition">
+                        <i data-lucide="wallet" class="w-4 h-4 text-terracotta"></i>
+                        <div class="text-left">
+                            <p class="text-[10px] uppercase tracking-wider text-stone-500 dark:text-slate-400 font-semibold">Gasto Estimado</p>
+                            <p id="headerBudgetDisplay" class="text-xs font-mono font-bold text-stone-900 dark:text-white">181,50 €</p>
+                        </div>
+                    </button>
+
+                    <!-- Currency Converter Toggle -->
+                    <div class="inline-flex rounded-xl bg-stone-200/70 dark:bg-slate-800 p-0.5 border border-stone-300/50 dark:border-slate-700" title="Cambiar moneda de visualización">
+                        <button onclick="setCurrency('EUR')" id="currBtnEUR" class="px-2.5 py-1 text-xs font-mono font-bold rounded-lg bg-white dark:bg-slate-700 text-terracotta shadow-sm transition">EUR €</button>
+                        <button onclick="setCurrency('COP')" id="currBtnCOP" class="px-2.5 py-1 text-xs font-mono font-bold rounded-lg text-stone-600 dark:text-slate-400 hover:text-stone-900 transition">COP $</button>
+                        <button onclick="setCurrency('AUD')" id="currBtnAUD" class="px-2.5 py-1 text-xs font-mono font-bold rounded-lg text-stone-600 dark:text-slate-400 hover:text-stone-900 transition">AUD $</button>
+                    </div>
+
+                    <!-- Dark Mode Toggle -->
+                    <button onclick="toggleDarkMode()" class="p-2 rounded-xl bg-white dark:bg-slate-800 border border-stone-200/80 dark:border-slate-700 text-stone-700 dark:text-amber-400 hover:bg-stone-100 dark:hover:bg-slate-700 transition shadow-sm" title="Modo Oscuro / Claro">
+                        <i data-lucide="moon" id="darkIcon" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- DESKTOP NAVIGATION TABS -->
+            <nav class="hidden lg:flex items-center gap-2 mt-3 pt-2 border-t border-stone-200/60 dark:border-slate-800/80">
+                <button onclick="switchMainTab('itinerary')" data-tab="itinerary" class="main-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-terracotta text-white shadow-sm transition">
+                    <i data-lucide="calendar-check-2" class="w-4 h-4"></i> Itinerario & Mapa Interactivo
+                </button>
+                <button onclick="switchMainTab('logistics')" data-tab="logistics" class="main-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-stone-600 dark:text-slate-300 hover:bg-stone-200/60 dark:hover:bg-slate-800 transition">
+                    <i data-lucide="plane-takeoff" class="w-4 h-4"></i> Vuelos (4) & Hostales (2)
+                </button>
+                <button onclick="switchMainTab('food')" data-tab="food" class="main-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-stone-600 dark:text-slate-300 hover:bg-stone-200/60 dark:hover:bg-slate-800 transition">
+                    <i data-lucide="utensils" class="w-4 h-4"></i> Gastronomía Low-Cost & Hacks
+                </button>
+                <button onclick="switchMainTab('budget')" data-tab="budget" class="main-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-stone-600 dark:text-slate-300 hover:bg-stone-200/60 dark:hover:bg-slate-800 transition">
+                    <i data-lucide="Calculator" class="w-4 h-4"></i> Billetera & Control de Gastos
+                </button>
+                <div class="ml-auto flex items-center gap-2 text-xs text-stone-500 dark:text-slate-400">
+                    <span class="inline-flex items-center gap-1 font-medium text-amber-700 dark:text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Dom 1 Nov: ¡Coliseo y Foro 100% Gratis!
+                    </span>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-5">
+
+        <!-- ==========================================
+             TAB 1: ITINERARIO DÍA A DÍA + MAPA EN VIVO
+             ========================================== -->
+        <section id="tab-itinerary" class="tab-section space-y-5">
+            
+            <!-- Golden Alert Banner: Domenica al Museo -->
+            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-900 via-terracotta-dark to-amber-800 text-white p-4 sm:p-5 shadow-lg">
+                <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="space-y-1">
+                        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-400/20 border border-amber-300/30 text-amber-200 text-xs font-bold uppercase tracking-wider">
+                            <i data-lucide="crown" class="w-3.5 h-3.5"></i> Bono de Ahorro Activado • Domingo 1 de Noviembre
+                        </div>
+                        <h2 class="font-editorial font-bold text-2xl sm:text-3xl">¡Domenica al Museo! Entradas a 0 € en toda Roma</h2>
+                        <p class="text-xs sm:text-sm text-amber-100/90 max-w-3xl leading-relaxed">
+                            Tu segundo día coincide con el <strong>primer domingo del mes</strong>. Por decreto del Ministerio de Cultura de Italia, el <strong>Coliseo, Foro Romano, Monte Palatino y Castillo de Sant'Angelo son 100% gratuitos</strong> (ahorras +24 €). No se reservan por internet: llega a las <strong>08:00 AM</strong> a la taquilla de Piazza del Colosseo para recibir tu pase sin costo.
+                        </p>
+                    </div>
+                    <button onclick="selectDay(2)" class="shrink-0 self-start md:self-center inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-terracotta-dark font-bold text-xs sm:text-sm shadow-md hover:bg-amber-50 transition">
+                        Ver Plan del Domingo <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- DAY SELECTOR PILLS (SCROLLABLE) -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-2 pt-1 no-scrollbar" id="daySelectorBar">
+                <!-- Populated by JS -->
+            </div>
+
+            <!-- SPLIT VIEW: INTERACTIVE TIMELINE (LEFT) + REAL LEAFLET MAP (RIGHT) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                
+                <!-- Left Column: Day Timeline & Activities -->
+                <div class="lg:col-span-7 space-y-4">
+                    <!-- Selected Day Summary Card -->
+                    <div id="daySummaryCard" class="rounded-2xl bg-white dark:bg-slate-800/90 border border-stone-200/80 dark:border-slate-700 p-5 shadow-sm">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <!-- Timeline Items List -->
+                    <div id="timelineContainer" class="space-y-3">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <!-- Personal Notes for the Day -->
+                    <div class="rounded-2xl bg-stone-100/80 dark:bg-slate-800/50 border border-stone-200/70 dark:border-slate-700/70 p-4">
+                        <label class="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-slate-300 mb-2">
+                            <span class="flex items-center gap-1.5"><i data-lucide="notebook-pen" class="w-4 h-4 text-terracotta"></i> Notas Personales de Ana María (Guardado Automático)</span>
+                            <span id="noteSavedBadge" class="text-[11px] text-emerald-600 dark:text-emerald-400 font-normal opacity-0 transition">✓ Guardado</span>
+                        </label>
+                        <textarea id="dayNoteInput" rows="2" oninput="saveDayNote(this.value)" placeholder="Escribe aquí recordatorios, compras o lugares que quieras recordar este día..." class="w-full rounded-xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-700 p-3 text-sm text-stone-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-terracotta"></textarea>
+                    </div>
+                </div>
+
+                <!-- Right Column: Sticky Interactive Leaflet Map -->
+                <div class="lg:col-span-5 lg:sticky lg:top-28 space-y-3">
+                    <div class="rounded-2xl bg-white dark:bg-slate-800 border border-stone-200/80 dark:border-slate-700 overflow-hidden shadow-md">
+                        <!-- Map Top Bar -->
+                        <div class="p-3.5 border-b border-stone-200/70 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2">
+                            <div>
+                                <h3 class="text-sm font-bold text-stone-900 dark:text-white flex items-center gap-1.5">
+                                    <i data-lucide="map-pin" class="w-4 h-4 text-terracotta"></i> Mapa Interactivo de Ruta
+                                </h3>
+                                <p id="mapSubtitle" class="text-xs text-stone-500 dark:text-slate-400">Toca cualquier marcador para ver precios y abrir en Google Maps</p>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <button onclick="fitMapToCurrentBounds()" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-stone-100 dark:bg-slate-700 text-stone-700 dark:text-slate-200 hover:bg-terracotta hover:text-white transition flex items-center gap-1">
+                                    <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i> Centrar Día
+                                </button>
+                                <button onclick="showAllCityPins('roma')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-stone-100 dark:bg-slate-700 text-stone-700 dark:text-slate-200 hover:bg-terracotta hover:text-white transition">
+                                    Todo Roma
+                                </button>
+                                <button onclick="showAllCityPins('madrid')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-stone-100 dark:bg-slate-700 text-stone-700 dark:text-slate-200 hover:bg-terracotta hover:text-white transition">
+                                    Madrid
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Leaflet Map Canvas -->
+                        <div id="tripMap" class="w-full h-[380px] sm:h-[440px] z-10"></div>
+
+                        <!-- Map Legend Footer -->
+                        <div class="px-4 py-2.5 bg-stone-50 dark:bg-slate-900/80 border-t border-stone-200/60 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2 text-[11px] text-stone-600 dark:text-slate-400">
+                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-600 inline-block"></span> Hostal Base</span>
+                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-terracotta inline-block"></span> Parada del Día</span>
+                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span> Comida Barata</span>
+                            <span class="flex items-center gap-1.5"><span class="w-4 border-b-2 border-dashed border-terracotta inline-block"></span> Ruta a pie</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 2: VUELOS (BOARDING PASSES) & HOSTALES
+             ========================================== -->
+        <section id="tab-logistics" class="tab-section hidden space-y-8">
+            
+            <!-- Baggage Strategy Alert -->
+            <div class="rounded-2xl bg-emerald-950 text-emerald-50 p-4 sm:p-5 border border-emerald-700/40 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="flex items-start gap-3.5">
+                    <div class="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-300 shrink-0 mt-0.5">
+                        <i data-lucide="luggage" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-base sm:text-lg text-white">Estrategia Clave de Equipaje para la Escala en Madrid (Jue 5 Nov)</h3>
+                        <p class="text-xs sm:text-sm text-emerald-200/90 mt-0.5 leading-relaxed">
+                            Tus vuelos <strong>UX1042</strong> (Roma → Madrid) y <strong>UX193</strong> (Madrid → Bogotá) están bajo la misma reserva de Air Europa y la escala es de 20h 45m (menor a 24h). Al entregar tu maleta grande en Roma, <strong>pide que la etiqueten directo hasta Bogotá (BOG)</strong> y lleva en tu morral de mano una muda de ropa y cepillo de dientes para dormir ligera en <em>Ok Hostel Madrid</em>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Boarding Passes Grid -->
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="font-editorial font-bold text-2xl sm:text-3xl text-stone-900 dark:text-white">Pases de Abordar y Vuelos Confirmados</h2>
+                        <p class="text-xs sm:text-sm text-stone-500 dark:text-slate-400">Haz clic en el código de reserva o número de ticket para copiarlo al portapapeles</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <!-- Flight 1: SIN -> BAH -->
+                    <div class="boarding-pass rounded-2xl bg-white dark:bg-slate-800 border border-stone-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                        <div class="bg-stone-900 text-white px-5 py-3 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono text-xs font-bold">TRAMO 1</span>
+                                <span class="font-bold text-sm">GULF AIR • GF 166</span>
+                            </div>
+                            <span class="text-xs text-stone-300 font-mono">Vie, 30 Oct 2026</span>
+                        </div>
+                        <div class="p-5 space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-2xl sm:text-3xl font-mono font-bold text-stone-900 dark:text-white">SIN</p>
+                                    <p class="text-xs text-stone-500 dark:text-slate-400">Singapur Changi</p>
+                                    <p class="text-sm font-bold text-terracotta mt-1">20:00</p>
+                                </div>
+                                <div class="flex-1 px-4 flex flex-col items-center">
+                                    <span class="text-[11px] font-mono text-stone-400">Economy</span>
+                                    <div class="w-full flex items-center gap-1 my-1">
+                                        <div class="h-[2px] flex-1 bg-stone-300 dark:bg-slate-600"></div>
+                                        <i data-lucide="plane" class="w-4 h-4 text-terracotta"></i>
+                                        <div class="h-[2px] flex-1 bg-stone-300 dark:bg-slate-600"></div>
+                                    </div>
+                                    <span class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">Embarque: 19:20</span>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-2xl sm:text-3xl font-mono font-bold text-stone-900 dark:text-white">BAH</p>
+                                    <p class="text-xs text-stone-500 dark:text-slate-400">Baréin Intl</p>
+                                    <p class="text-sm font-bold text-stone-700 dark:text-slate-300 mt-1">Cierra: 19:40</p>
+                                </div>
+                            </div>
+                            <div class="pt-3 border-t border-dashed border-stone-200 dark:border-slate-700 grid grid-cols-4 gap-2 text-center">
+                                <div class="bg-stone-50 dark:bg-slate-900/60 p-2 rounded-xl">
+                                    <p class="text-[10px] uppercase text-stone-400">Asiento</p>
+                                    <p class="font-mono font-bold text-sm text-stone-900 dark:text-white">42K</p>
+                                </div>
+                                <div class="bg-stone-50 dark:bg-slate-900/60 p-2 rounded-xl">
+                                    <p class="text-[10px] uppercase text-stone-400">Zona</p>
+                                    <p class="font-mono font-bold text-sm text-stone-900 dark:text-white">Zone 1</p>
+                                </div>
+                                <button onclick="copyText('HWHDKH', 'Reserva Gulf Air copiada')" class="bg-terracotta/10 hover:bg-terracotta/20 p-2 rounded-xl transition group">
+                                    <p class="text-[10px] uppercase text-terracotta font-semibold flex items-center justify-center gap-1">PNR <i data-lucide="copy" class="w-2.5 h-2.5"></i></p>
+                                    <p class="font-mono font-bold text-sm text-terracotta-dark dark:text-orange-300">HWHDKH</p>
+                                </button>
+                                <button onclick="copyText('0722137272004', 'Ticket copiado')" class="bg-stone-50 dark:bg-slate-900/60 hover:bg-stone-200/60 p-2 rounded-xl transition">
+                                    <p class="text-[10px] uppercase text-stone-400 flex items-center justify-center gap-1">E-Ticket <i data-lucide="copy" class="w-2.5 h-2.5"></i></p>
+                                    <p class="font-mono font-bold text-[11px] truncate text-stone-800 dark:text-slate-200">0722137272004</p>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Flight 2: BAH -> FCO -->
+                    <div class="boarding-pass rounded-2xl bg-white dark:bg-slate-800 border border-stone-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                        <div class="bg-stone-900 text-white px-5 py-3 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono text-xs font-bold">TRAMO 2</span>
+                                <span class="font-bold text-sm">GULF AIR • GF 27</span>
+                            </div>
+                            <span class="text-xs text-stone-300 font-mono">Sáb, 31 Oct 2026</span>
+                        </div>
+                        <div class="p-5 space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-2xl sm:text-3xl font-mono font-bold text-stone-900 dark:text-white">BAH</p>
+                                    <p class="text-xs text-stone-500 dark:text-slate-400">Baréin Intl</p>
+                                    <p class="text-sm font-bold text-terracotta mt-1">01:40</p>
+                                </div>
+                                <div class="flex-1 px-4 flex flex-col items-center">
+                                    <span class="text-[11px] font-mono text-stone-400">Puerta 1/GATE</span>
+                                    <div class="w-full flex items-center gap-1 my-1">
+                                        <div class="h-[2px] flex-1 bg-stone-300 dark:bg-slate-600"></div>
+                                        <i data-lucide="plane" class="w-4 h-4 text-terracotta"></i>
+                                        <div class="h-[2px] flex-1 bg-stone-300 dark:bg-slate-600"></div>
+                                    </div>
+                                    <span class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">Embarque: 00:40</span>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-2xl sm:text-3xl font-mono font-bold text-stone-900 dark:text-white">FCO</p>
+                                    <p class="text-xs text-stone-500 dark:text-slate-400">Roma Fiumicino</p>
+                                    <p class="text-sm font-bold text-emerald-600 dark:text-emerald-400 mt-1">~05:55 AM</p>
+                                </div>
+                            </div>
+                            <div class="pt-3 border-t border-dashed border-stone-200 dark:border-slate-700 grid grid-cols-4 gap-2 text-center">
+                                <div class="bg-stone-50 dark:bg-slate-900/60 p-2 rounded-xl">
+                                    <p class="text-[10px] uppercase text-stone-400">Asiento</p>
+                                    <p class="font-mono font-bold text-sm text-stone-900 dark:text-white">11F</p>
+                                </div>
+                                <div class="bg-stone-50 dark:bg-slate-900/60 p-2 rounded-xl">
+                                    <p class="text-[10px] uppercase text-stone-400">Zona</p>
+                                    <p class="font-mono font-bold text-sm text-stone-900 dark:text-white">Zone 3</p>
+                                </div>
+                                <button onclick="copyText('HWHDKH', 'Reserva Gulf Air copiada')" class="bg-terracotta/10 hover:bg-terracotta/20 p-2 rounded-xl transition">
+                                    <p class="text-[10px] uppercase text-terracotta font-semibold flex items-center justify-center gap-1">PNR <i data-lucide="copy" class="w-2.5 h-2.5"></i></p>
+                                    <p class="font-mono font-bold text-sm text-terracotta-dark dark:text-orange-300">HWHDKH</p>
+                                </button>
+                                <div class="bg-stone-50 dark:bg-slate-900/60 p-2 rounded-xl">
+                                    <p class="text-[10px] uppercase text-stone-400">Cierre Puerta</p>
+                                    <p class="font-mono font-bold text-sm text-stone-900 dark:text-white">01:20</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Flight 3: FCO -> MAD -->
+                    <div class="boarding-pass rounded-2xl bg-white dark:bg-slate-800 border border-stone-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                        <div class="bg-blue-900 text-white px-5 py-3 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded bg-sky-400/20 text-sky-200 font-mono text-xs font-bold">TRAMO 3</span>
+                                <span class="font-bold text-sm">AIR EUROPA EXPRESS • UX1042</span>
+                            </div>
+                            <span class="text-xs text-sky-200 font-mono">Jue, 05 Nov 2026</span>
+                        </div>
+                        <div class="p-5 space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-2xl sm:text-3xl font-mono font-bold text-stone-900 dark:text-white">FCO</p>
+                                    <p class="text-xs text-stone-500 dark:text-slate-400">Roma Fiumicino</p>
+                                    <p class="text-sm font-bold text-terracotta mt-1">15:55</p>
+                                </div>
+                                <div class="flex-1 px-4 flex flex-col items-center">
+                                    <span class="text-[11px] font-mono text-stone-400">Duración: 2h 35m</span>
+                                    <div class="w-full flex items-center gap-1 my-1">
+                                        <div class="h-[2px] flex-1 bg-stone-300 dark:bg-slate-600"></div>
+                                        <i data-lucide="plane" class="w-4 h-4 text-blue-600"></i>
+                                        <div class="h-[2px] flex-1 bg-stone-300 dark:bg-slate-600"></div>
+                                    </div>
+                                    <span class="text-[11px] text-stone-500 dark:text-slate-400">Economy Standard</span>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-2xl sm:text-3xl font-mono font-bold text-stone-900 dark:text-white">MAD</p>
+                                    <p class="text-xs text-stone-500 dark:text-slate-400">Madrid Barajas</p>
+                                    <p class="text-sm font-bold text-emerald-600 dark:text-emerald-400 mt-1">18:30</p>
+                                </div>
+                            </div>
+                            <div class="pt-3 border-t border-dashed border-stone-200 dark:border-slate-700 flex items-center justify-between text-xs text-stone-600 dark:text-slate-300">
+                                <span><i data-lucide="clock" class="w-3.5 h-3.5 inline text-terracotta"></i> Salir de Trastevere a las <strong>12:00 PM</strong> en tren FL1</span>
+                                <span class="px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-300 font-semibold">Escala de 20h 45m en Madrid</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Flight 4: MAD -> BOG -->
+                    <div class="boarding-pass rounded-2xl bg-white dark:bg-slate-800 border border-stone-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                        <div class="bg-blue-900 text-white px-5 py-3 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded bg-sky-400/20 text-sky-200 font-mono text-xs font-bold">TRAMO 4</span>
+                                <span class="font-bold text-sm">AIR EUROPA • UX193</span>
+                            </div>
+                            <span class="text-xs text-sky-200 font-mono">Vie, 06 Nov 2026</span>
+                        </div>
+                        <div class="p-5 space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-2xl sm:text-3xl font-mono font-bold text-stone-900 dark:text-white">MAD</p>
+                                    <p class="text-xs text-stone-500 dark:text-slate-400">Madrid Barajas</p>
+                                    <p class="text-sm font-bold text-terracotta mt-1">15:15</p>
+                                </div>
+                                <div class="flex-1 px-4 flex flex-col items-center">
+                                    <span class="text-[11px] font-mono text-stone-400">Duración: 10h 20m</span>
+                                    <div class="w-full flex items-center gap-1 my-1">
+                                        <div class="h-[2px] flex-1 bg-stone-300 dark:bg-slate-600"></div>
+                                        <i data-lucide="plane" class="w-4 h-4 text-blue-600"></i>
+                                        <div class="h-[2px] flex-1 bg-stone-300 dark:bg-slate-600"></div>
+                                    </div>
+                                    <span class="text-[11px] text-stone-500 dark:text-slate-400">Vuelo Directo</span>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-2xl sm:text-3xl font-mono font-bold text-stone-900 dark:text-white">BOG</p>
+                                    <p class="text-xs text-stone-500 dark:text-slate-400">Bogotá El Dorado</p>
+                                    <p class="text-sm font-bold text-emerald-600 dark:text-emerald-400 mt-1">19:35</p>
+                                </div>
+                            </div>
+                            <div class="pt-3 border-t border-dashed border-stone-200 dark:border-slate-700 flex items-center justify-between text-xs text-stone-600 dark:text-slate-300">
+                                <span><i data-lucide="clock" class="w-3.5 h-3.5 inline text-terracotta"></i> Salir hacia Barajas a las <strong>11:45 AM</strong> desde La Latina</span>
+                                <span class="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-semibold">¡Bienvenida a Colombia!</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACCOMMODATION CARDS WITH TAXI DISPLAY MODE -->
+            <div>
+                <h2 class="font-editorial font-bold text-2xl sm:text-3xl text-stone-900 dark:text-white mb-1">Tus Hostales Base & Rutas Económicas desde el Aeropuerto</h2>
+                <p class="text-xs sm:text-sm text-stone-500 dark:text-slate-400 mb-4">Incluye el botón "Modo Conductor / Taxi" para mostrar la dirección en grande si necesitas pedir ayuda en la calle</p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Hostel 1: Roma -->
+                    <div class="rounded-2xl bg-white dark:bg-slate-800 border border-stone-200 dark:border-slate-700 p-5 shadow-sm flex flex-col justify-between space-y-4">
+                        <div class="space-y-3">
+                            <div class="flex items-start justify-between gap-2">
+                                <div>
+                                    <span class="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-terracotta/15 text-terracotta">Roma • 5 Noches (31 Oct – 5 Nov)</span>
+                                    <h3 class="font-editorial font-bold text-2xl text-stone-900 dark:text-white mt-1">Borgo Ripa Urban Travel</h3>
+                                    <p class="text-xs text-stone-500 dark:text-slate-400 flex items-center gap-1 mt-0.5">
+                                        <i data-lucide="map-pin" class="w-3.5 h-3.5 text-terracotta"></i> Lungotevere Ripa, 3, Trastevere, 00153 Roma, Italia
+                                    </p>
+                                </div>
+                                <div class="bg-blue-700 text-white font-mono font-bold text-sm px-2.5 py-1.5 rounded-xl shadow-sm">
+                                    8,1 ★
+                                </div>
+                            </div>
+
+                            <div class="rounded-xl bg-stone-50 dark:bg-slate-900/70 p-3.5 border border-stone-200/60 dark:border-slate-700 space-y-2 text-xs">
+                                <p class="font-bold text-stone-800 dark:text-slate-200 flex items-center gap-1.5">
+                                    <i data-lucide="train-front" class="w-4 h-4 text-emerald-600"></i> Cómo llegar barato desde Fiumicino (9,50 € vs 55 € Taxi):
+                                </p>
+                                <ol class="list-decimal list-inside space-y-1 text-stone-600 dark:text-slate-300 leading-relaxed">
+                                    <li>En el aeropuerto sigue los letreros de <strong>Train / Treni</strong> y compra billete para el tren regional <strong>FL1 hasta Roma Trastevere</strong> (cuesta <strong>8,00 €</strong>, no tomes el Leonardo Express de 14 €).</li>
+                                    <li>Bájate en <em>Stazione Trastevere</em> (27 min). Afuera toma el <strong>Tranvía 8</strong> o el <strong>Bus H</strong> (paga <strong>1,50 €</strong> acercando tu tarjeta contactless al lector) por 4 paradas hasta <em>Belli / Sonnino</em>, o camina 20 min planos junto al río.</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-2 pt-2">
+                            <a href="https://www.google.com/maps/search/?api=1&query=Borgo+Ripa+Urban+Travel+Lungotevere+Ripa+3+Roma" target="_blank" rel="noopener noreferrer" class="flex-1 inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-terracotta text-white font-bold text-xs hover:bg-terracotta-dark transition">
+                                <i data-lucide="navigation" class="w-4 h-4"></i> Abrir en Google Maps
+                            </a>
+                            <button onclick="openTaxiModal('Borgo Ripa Urban Travel', 'Lungotevere Ripa, 3, Trastevere, 00153 Roma RM, Italia', 'Mi può portare a questo indirizzo a Trastevere, vicino a Ponte Palatino, per favore?')" class="px-3.5 py-2.5 rounded-xl bg-stone-100 dark:bg-slate-700 text-stone-800 dark:text-slate-200 font-semibold text-xs hover:bg-stone-200 transition flex items-center gap-1.5">
+                                <i data-lucide="car-taxi-front" class="w-4 h-4 text-amber-600"></i> Modo Taxi
+                            </button>
+                            <button onclick="copyText('Lungotevere Ripa, 3, Trastevere, 00153 Roma, Italia', 'Dirección de Roma copiada')" class="p-2.5 rounded-xl bg-stone-100 dark:bg-slate-700 text-stone-700 dark:text-slate-200 hover:bg-stone-200 transition" title="Copiar dirección">
+                                <i data-lucide="copy" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Hostel 2: Madrid -->
+                    <div class="rounded-2xl bg-white dark:bg-slate-800 border border-stone-200 dark:border-slate-700 p-5 shadow-sm flex flex-col justify-between space-y-4">
+                        <div class="space-y-3">
+                            <div class="flex items-start justify-between gap-2">
+                                <div>
+                                    <span class="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300">Madrid • 1 Noche (5 Nov – 6 Nov)</span>
+                                    <h3 class="font-editorial font-bold text-2xl text-stone-900 dark:text-white mt-1">Ok Hostel Madrid</h3>
+                                    <p class="text-xs text-stone-500 dark:text-slate-400 flex items-center gap-1 mt-0.5">
+                                        <i data-lucide="map-pin" class="w-3.5 h-3.5 text-terracotta"></i> Calle Juanelo, 24, Centro (La Latina), 28012 Madrid
+                                    </p>
+                                </div>
+                                <div class="bg-blue-700 text-white font-mono font-bold text-sm px-2.5 py-1.5 rounded-xl shadow-sm">
+                                    9,0 ★
+                                </div>
+                            </div>
+
+                            <div class="rounded-xl bg-stone-50 dark:bg-slate-900/70 p-3.5 border border-stone-200/60 dark:border-slate-700 space-y-2 text-xs">
+                                <p class="font-bold text-stone-800 dark:text-slate-200 flex items-center gap-1.5">
+                                    <i data-lucide="tram-front" class="w-4 h-4 text-emerald-600"></i> Cómo llegar barato desde Madrid-Barajas (~4,50 €):
+                                </p>
+                                <ol class="list-decimal list-inside space-y-1 text-stone-600 dark:text-slate-300 leading-relaxed">
+                                    <li><strong>Opción Metro:</strong> Toma la Línea 8 en el aeropuerto hasta <em>Nuevos Ministerios</em>, cambia a la Línea 10 hasta <em>Tribunal</em> y toma la Línea 1 hasta la estación <strong>Tirso de Molina</strong> (a solo 200 metros del hostal).</li>
+                                    <li><strong>Opción súper barata (2,60 €):</strong> Si estás en la T4, toma el tren de <strong>Cercanías (C1 o C10)</strong> hasta <em>Sol</em> o <em>Atocha</em> (sin suplemento de aeropuerto) y camina 10 minutos hasta Calle Juanelo 24.</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-2 pt-2">
+                            <a href="https://www.google.com/maps/search/?api=1&query=Ok+Hostel+Madrid+Calle+Juanelo+24+Madrid" target="_blank" rel="noopener noreferrer" class="flex-1 inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-terracotta text-white font-bold text-xs hover:bg-terracotta-dark transition">
+                                <i data-lucide="navigation" class="w-4 h-4"></i> Abrir en Google Maps
+                            </a>
+                            <button onclick="openTaxiModal('Ok Hostel Madrid', 'Calle Juanelo, 24, Centro (La Latina), 28012 Madrid, España', '¿Me lleva por favor a la Calle Juanelo 24, junto al metro Tirso de Molina en La Latina?')" class="px-3.5 py-2.5 rounded-xl bg-stone-100 dark:bg-slate-700 text-stone-800 dark:text-slate-200 font-semibold text-xs hover:bg-stone-200 transition flex items-center gap-1.5">
+                                <i data-lucide="car-taxi-front" class="w-4 h-4 text-amber-600"></i> Modo Taxi
+                            </button>
+                            <button onclick="copyText('Calle Juanelo, 24, Centro, 28012 Madrid, España', 'Dirección de Madrid copiada')" class="p-2.5 rounded-xl bg-stone-100 dark:bg-slate-700 text-stone-700 dark:text-slate-200 hover:bg-stone-200 transition" title="Copiar dirección">
+                                <i data-lucide="copy" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 3: GASTRONOMÍA LOW-COST & SURVIVAL HACKS
+             ========================================== -->
+        <section id="tab-food" class="tab-section hidden space-y-8">
+            
+            <!-- Survival Low-Cost Hacks Grid -->
+            <div>
+                <h2 class="font-editorial font-bold text-2xl sm:text-3xl text-stone-900 dark:text-white mb-1">4 Reglas de Oro para Comer Rico sin Gastar de Más</h2>
+                <p class="text-xs sm:text-sm text-stone-500 dark:text-slate-400 mb-4">Trucos locales en Roma y Madrid que reducen a la mitad tus gastos diarios</p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="rounded-2xl bg-white dark:bg-slate-800 p-4 border border-stone-200/80 dark:border-slate-700 shadow-sm space-y-2">
+                        <div class="w-9 h-9 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+                            <i data-lucide="droplets" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="font-bold text-sm text-stone-900 dark:text-white">Agua Gratis 24/7 ("Nasoni")</h3>
+                        <p class="text-xs text-stone-600 dark:text-slate-300 leading-relaxed">
+                            No compres botellas de agua de 3 €. Lleva tu botella reutilizable: en cada plaza de Roma hay fuentes de hierro (<em>Nasoni</em>) con agua helada, pura y 100% potable directo del acueducto.
+                        </p>
+                    </div>
+
+                    <div class="rounded-2xl bg-white dark:bg-slate-800 p-4 border border-stone-200/80 dark:border-slate-700 shadow-sm space-y-2">
+                        <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                            <i data-lucide="coffee" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="font-bold text-sm text-stone-900 dark:text-white">Café "Al Banco" vs. Mesa</h3>
+                        <p class="text-xs text-stone-600 dark:text-slate-300 leading-relaxed">
+                            En Italia, tomar un <em>espresso</em> o <em>cappuccino</em> de pie en la barra (<strong>al banco</strong>) cuesta <strong>1,20 € – 1,50 €</strong>. Si te sientas en una mesa en terraza te cobran servicio y sube a 4,50 € o más.
+                        </p>
+                    </div>
+
+                    <div class="rounded-2xl bg-white dark:bg-slate-800 p-4 border border-stone-200/80 dark:border-slate-700 shadow-sm space-y-2">
+                        <div class="w-9 h-9 rounded-xl bg-terracotta/10 text-terracotta flex items-center justify-center">
+                            <i data-lucide="pizza" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="font-bold text-sm text-stone-900 dark:text-white">Cuidado con el "Coperto"</h3>
+                        <p class="text-xs text-stone-600 dark:text-slate-300 leading-relaxed">
+                            Para almorzar, prefiere <em>pizza al taglio</em> (al corte), paninis o <em>Trapizzino</em> donde no pagas servicio de mesa. Deja el restaurante de mantel para una buena cena en Trastevere.
+                        </p>
+                    </div>
+
+                    <div class="rounded-2xl bg-white dark:bg-slate-800 p-4 border border-stone-200/80 dark:border-slate-700 shadow-sm space-y-2">
+                        <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                            <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="font-bold text-sm text-stone-900 dark:text-white">Souvenirs en Supermercado</h3>
+                        <p class="text-xs text-stone-600 dark:text-slate-300 leading-relaxed">
+                            Compra chocolates Baci Perugina, pasta artesanal, queso Pecorino al vacío o café Lavazza en supermercados <strong>Conad, Todis o Carrefour</strong>: cuestan un 60% menos que en tiendas de recuerdos.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Curated Gastronomic Spots -->
+            <div>
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                    <div>
+                        <h2 class="font-editorial font-bold text-2xl sm:text-3xl text-stone-900 dark:text-white">Directorio Gastronómico Bueno, Bonito y Barato</h2>
+                        <p class="text-xs sm:text-sm text-stone-500 dark:text-slate-400">Todos verificados cerca de tus hostales en Trastevere y La Latina</p>
+                    </div>
+                    <div class="inline-flex rounded-xl bg-stone-200/70 dark:bg-slate-800 p-1">
+                        <button onclick="filterFood('all')" id="foodFilter-all" class="food-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-slate-700 text-terracotta shadow-sm">Todos</button>
+                        <button onclick="filterFood('Roma')" id="foodFilter-Roma" class="food-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-stone-600 dark:text-slate-300">Roma (Trastevere)</button>
+                        <button onclick="filterFood('Madrid')" id="foodFilter-Madrid" class="food-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-stone-600 dark:text-slate-300">Madrid (Centro)</button>
+                    </div>
+                </div>
+
+                <div id="foodGridContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 4: BILLETERA & CONTROL DE GASTOS
+             ========================================== -->
+        <section id="tab-budget" class="tab-section hidden space-y-6">
+            
+            <!-- Top Financial Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="rounded-2xl bg-white dark:bg-slate-800 p-5 border border-stone-200 dark:border-slate-700 shadow-sm">
+                    <p class="text-xs font-bold uppercase tracking-wider text-stone-400">Presupuesto Base Sugerido</p>
+                    <p id="budgetTotalEstimated" class="font-mono font-bold text-2xl sm:text-3xl text-stone-900 dark:text-white mt-1">181,50 €</p>
+                    <p class="text-xs text-stone-500 dark:text-slate-400 mt-1">Para los 7 días (Vuelos y hostales ya pagos)</p>
+                </div>
+
+                <div class="rounded-2xl bg-white dark:bg-slate-800 p-5 border border-stone-200 dark:border-slate-700 shadow-sm">
+                    <p class="text-xs font-bold uppercase tracking-wider text-terracotta">Total Pagado / Registrado</p>
+                    <p id="budgetTotalSpent" class="font-mono font-bold text-2xl sm:text-3xl text-terracotta mt-1">0,00 €</p>
+                    <p id="budgetRemainingText" class="text-xs text-emerald-600 dark:text-emerald-400 font-medium mt-1">Disponible según meta: 181,50 €</p>
+                </div>
+
+                <div class="rounded-2xl bg-gradient-to-br from-stone-900 to-stone-800 text-white p-5 shadow-sm flex flex-col justify-between">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Tasas de Referencia</span>
+                        <i data-lucide="coins" class="w-4 h-4 text-amber-400"></i>
+                    </div>
+                    <div class="space-y-1 my-2 text-xs font-mono">
+                        <div class="flex justify-between"><span>1 EUR (€) ≈</span> <span>$ 4.650 COP</span></div>
+                        <div class="flex justify-between"><span>1 EUR (€) ≈</span> <span>$ 1,66 AUD</span></div>
+                    </div>
+                    <p class="text-[11px] text-stone-300">Usa el selector superior (EUR / COP / AUD) para convertir toda la app al instante.</p>
+                </div>
+            </div>
+
+            <!-- Add Custom Expense & Expense Checklist -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Left: Add New Expense Form -->
+                <div class="lg:col-span-4">
+                    <div class="rounded-2xl bg-white dark:bg-slate-800 border border-stone-200 dark:border-slate-700 p-5 shadow-sm space-y-4">
+                        <h3 class="font-editorial font-bold text-xl text-stone-900 dark:text-white flex items-center gap-2">
+                            <i data-lucide="plus-circle" class="w-5 h-5 text-terracotta"></i> Registrar Nuevo Gasto
+                        </h3>
+                        <p class="text-xs text-stone-500 dark:text-slate-400">Anota un helado, recuerdo o cena para llevar el control exacto en tu celular.</p>
+                        
+                        <form onsubmit="addCustomExpense(event)" class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-stone-700 dark:text-slate-300 mb-1">Concepto</label>
+                                <input type="text" id="expTitle" required placeholder="Ej. Gelato en Giolitti / Imán" class="w-full rounded-xl bg-stone-50 dark:bg-slate-900 border border-stone-200 dark:border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-terracotta">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-stone-700 dark:text-slate-300 mb-1">Monto en Euros (€)</label>
+                                    <input type="number" id="expAmount" step="0.1" min="0.1" required placeholder="3.50" class="w-full rounded-xl bg-stone-50 dark:bg-slate-900 border border-stone-200 dark:border-slate-700 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-terracotta">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-stone-700 dark:text-slate-300 mb-1">Categoría</label>
+                                    <select id="expCategory" class="w-full rounded-xl bg-stone-50 dark:bg-slate-900 border border-stone-200 dark:border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-terracotta">
+                                        <option value="Comida">🍕 Comida</option>
+                                        <option value="Transporte">🚆 Transporte</option>
+                                        <option value="Entradas">🏛️ Entradas</option>
+                                        <option value="Compras">🛍️ Compras / Otros</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="w-full py-2.5 rounded-xl bg-terracotta hover:bg-terracotta-dark text-white font-bold text-xs sm:text-sm shadow-sm transition flex items-center justify-center gap-1.5">
+                                <i data-lucide="check" class="w-4 h-4"></i> Guardar y Sumar al Gasto Real
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Right: Interactive Budget Breakdown List -->
+                <div class="lg:col-span-8">
+                    <div class="rounded-2xl bg-white dark:bg-slate-800 border border-stone-200 dark:border-slate-700 p-5 shadow-sm space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <div>
+                                <h3 class="font-editorial font-bold text-xl text-stone-900 dark:text-white">Desglose de Gastos Previstos y Reales</h3>
+                                <p class="text-xs text-stone-500 dark:text-slate-400">Marca la casilla a medida que vayas pagando cada rubro durante el viaje</p>
+                            </div>
+                            <button onclick="resetBudgetTracker()" class="text-xs text-stone-400 hover:text-rose-600 underline">Restablecer valores</button>
+                        </div>
+
+                        <div id="budgetItemsList" class="divide-y divide-stone-200/70 dark:divide-slate-700">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MOBILE BOTTOM NAVIGATION BAR -->
+    <nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-stone-200 dark:border-slate-800 px-2 py-1.5 shadow-2xl">
+        <div class="grid grid-cols-4 gap-1 max-w-md mx-auto">
+            <button onclick="switchMainTab('itinerary')" data-tab="itinerary" class="mobile-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-terracotta font-bold">
+                <i data-lucide="map" class="w-5 h-5"></i>
+                <span class="text-[10px] mt-0.5">Ruta & Mapa</span>
+            </button>
+            <button onclick="switchMainTab('logistics')" data-tab="logistics" class="mobile-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-stone-500 dark:text-slate-400 font-medium">
+                <i data-lucide="plane" class="w-5 h-5"></i>
+                <span class="text-[10px] mt-0.5">Vuelos/Hostal</span>
+            </button>
+            <button onclick="switchMainTab('food')" data-tab="food" class="mobile-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-stone-500 dark:text-slate-400 font-medium">
+                <i data-lucide="utensils" class="w-5 h-5"></i>
+                <span class="text-[10px] mt-0.5">Comida Barata</span>
+            </button>
+            <button onclick="switchMainTab('budget')" data-tab="budget" class="mobile-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-stone-500 dark:text-slate-400 font-medium">
+                <i data-lucide="wallet" class="w-5 h-5"></i>
+                <span class="text-[10px] mt-0.5">Presupuesto</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- TAXI / DRIVER FULLSCREEN CARD MODAL -->
+    <div id="taxiModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 sm:p-8 text-center space-y-5 shadow-2xl border border-stone-200 dark:border-slate-700">
+            <div class="w-14 h-14 rounded-2xl bg-amber-500/15 text-amber-600 flex items-center justify-center mx-auto">
+                <i data-lucide="car-taxi-front" class="w-8 h-8"></i>
+            </div>
+            <p class="text-xs font-bold uppercase tracking-widest text-terracotta">Modo Pantalla para Conductor / Locales</p>
+            <h3 id="taxiModalTitle" class="font-editorial font-bold text-3xl text-stone-900 dark:text-white"></h3>
+            <div class="p-4 rounded-2xl bg-stone-100 dark:bg-slate-800 border border-stone-300 dark:border-slate-700">
+                <p id="taxiModalAddress" class="font-mono font-bold text-lg sm:text-xl text-stone-900 dark:text-white select-all"></p>
+            </div>
+            <p id="taxiModalPhrase" class="text-sm italic text-stone-600 dark:text-slate-300 bg-amber-500/10 p-3 rounded-xl"></p>
+            <button onclick="closeTaxiModal()" class="w-full py-3 rounded-xl bg-stone-900 dark:bg-white text-white dark:text-stone-900 font-bold text-sm">
+                Cerrar Pantalla
+            </button>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toastNotification" class="fixed bottom-20 lg:bottom-6 right-4 z-50 pointer-events-none opacity-0 translate-y-2 transition-all duration-300 bg-stone-900 text-white px-4 py-2.5 rounded-xl shadow-xl text-xs font-semibold flex items-center gap-2">
+        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+        <span id="toastMessage">Copiado al portapapeles</span>
+    </div>
+
+    <!-- APPLICATION LOGIC & COMPLETE TRIP DATASET -->
+    <script>
+        // ==========================================
+        // 1. CURRENCY & STATE CONFIGURATION
+        // ==========================================
+        const CURRENCY_RATES = {
+            EUR: { symbol: '€', rate: 1, decimals: 2, suffix: true },
+            COP: { symbol: '$', rate: 4650, decimals: 0, suffix: false, code: 'COP' },
+            AUD: { symbol: 'A$', rate: 1.66, decimals: 2, suffix: false, code: 'AUD' }
+        };
+
+        let currentCurrency = localStorage.getItem('ana_trip_currency') || 'EUR';
+        let selectedDayId = parseInt(localStorage.getItem('ana_trip_day')) || 1;
+        let checkedActivities = JSON.parse(localStorage.getItem('ana_trip_checked') || '{}');
+        let dayNotes = JSON.parse(localStorage.getItem('ana_trip_notes') || '{}');
+
+        // Default Budget Items
+        const defaultBudgetItems = [
+            { id: 'b1', title: 'Tren FL1 Fiumicino → Roma Trastevere + Bus (Llegada)', category: 'Transporte', amountEUR: 9.50, paid: false },
+            { id: 'b2', title: 'Tasa Turística Municipal Roma (5 noches en hostal)', category: 'Compras', amountEUR: 17.50, paid: false },
+            { id: 'b3', title: 'Coliseo, Foro Romano y Palatino (¡Gratis Dom 1 Nov!)', category: 'Entradas', amountEUR: 0.00, paid: true },
+            { id: 'b4', title: 'Entrada Panteón de Agripa (Lunes 2 Nov)', category: 'Entradas', amountEUR: 5.00, paid: false },
+            { id: 'b5', title: 'Billetes urbanos extra en Roma (4 trayectos BIT)', category: 'Transporte', amountEUR: 6.00, paid: false },
+            { id: 'b6', title: 'Comidas, Pizzas, Trapizzino y Tonnarello en Roma (5 días)', category: 'Comida', amountEUR: 110.00, paid: false },
+            { id: 'b7', title: 'Tren FL1 Roma Trastevere → Aeropuerto Fiumicino (Salida)', category: 'Transporte', amountEUR: 9.50, paid: false },
+            { id: 'b8', title: 'Metro / Cercanías Madrid Aeropuerto ↔ La Latina (Ida y vuelta)', category: 'Transporte', amountEUR: 9.00, paid: false },
+            { id: 'b9', title: 'Bocadillo de calamares y Churros en San Ginés (Madrid)', category: 'Comida', amountEUR: 15.00, paid: false }
+        ];
+
+        let budgetItems = JSON.parse(localStorage.getItem('ana_trip_budget')) || defaultBudgetItems;
+
+        // ==========================================
+        // 2. COMPLETE DAY-BY-DAY DATASET WITH COORDS
+        // ==========================================
+        const TRIP_DAYS = [
+            {
+                id: 1,
+                city: 'Roma',
+                shortTitle: 'Sáb 31 Oct',
+                title: 'Llegada a Roma, Isla Tiberina y Atardecer en Trastevere',
+                subtitle: 'Adaptación suave tras el vuelo desde Baréin, miradores gratuitos y noche bohemia al lado de tu hostal.',
+                dailyBudgetEUR: 22.00,
+                hostelCoords: [41.8868, 12.4774],
+                hostelName: 'Borgo Ripa Urban Travel',
+                stops: [
+                    {
+                        id: 'd1_s1',
+                        time: '05:55 – 08:00',
+                        title: 'Aterrizaje en Fiumicino y Tren FL1 a Trastevere',
+                        category: 'Logística',
+                        costEUR: 9.50,
+                        coords: [41.8868, 12.4774],
+                        desc: 'Aterriza el vuelo GF 27. Toma el tren regional FL1 (8 €) hasta la estación Roma Trastevere y el Bus H o Tranvía 8 (1,50 €) hasta Borgo Ripa Urban Travel. Deja la maleta en recepción y toma un espresso con cornetto en barra (~2,50 €).',
+                        tip: 'No tomes el tren Leonardo Express de 14 €: te deja en Termini (lejos de tu hostal). El FL1 es más barato y directo a Trastevere.',
+                        mapsQuery: 'Borgo+Ripa+Urban+Travel+Roma'
+                    },
+                    {
+                        id: 'd1_s2',
+                        time: '09:30 – 12:30',
+                        title: 'Isla Tiberina, Barrio Judío y Jardín de los Naranjos',
+                        category: 'Mirador Gratis',
+                        costEUR: 0,
+                        coords: [41.8851, 12.4801],
+                        desc: 'Cruza el Puente Cestio frente a tu hostal hacia la Isla Tiberina, camina por el Pórtico de Octavia, pasa por la Boca de la Verdad y sube al Giardino degli Aranci (Jardín de los Naranjos) y la cerradura secreta de la Orden de Malta.',
+                        tip: 'Al asomarte por el ojo de la cerradura en Piazza dei Cavalieri di Malta verás la cúpula de San Pedro enmarcada por árboles.',
+                        mapsQuery: 'Giardino+degli+Aranci+Roma'
+                    },
+                    {
+                        id: 'd1_s3',
+                        time: '13:30 – 17:30',
+                        title: 'Almuerzo Al Taglio, Check-in y Siesta Reparadora',
+                        category: 'Descanso',
+                        costEUR: 6.50,
+                        coords: [41.8894, 12.4696],
+                        desc: 'Come una porción de pizza al corte recién horneada en Trastevere, recibe tu habitación en Borgo Ripa Urban Travel y descansa un par de horas.',
+                        tip: 'Dormir 2 horas en la tarde te quitará el jet-lag del vuelo desde Singapur.',
+                        mapsQuery: 'Piazza+di+Santa+Maria+in+Trastevere+Roma'
+                    },
+                    {
+                        id: 'd1_s4',
+                        time: '18:00 – 21:30',
+                        title: 'Basílica Santa Maria in Trastevere, Gianicolo y Trapizzino',
+                        category: 'Cultura & Cena',
+                        costEUR: 7.00,
+                        coords: [41.8916, 12.4705],
+                        desc: 'Entra gratis a la Basílica de Santa Maria in Trastevere (mosaicos dorados del siglo XII), sube al mirador de la colina del Gianicolo y cena en Trapizzino en Piazza Trilussa.',
+                        tip: 'Pide el Trapizzino de Pollo alla Cacciatora o Polpette al Sugo (5 €) + un supplì (2 €).',
+                        mapsQuery: 'Trapizzino+Trastevere+Piazza+Trilussa+Roma'
+                    }
+                ]
+            },
+            {
+                id: 2,
+                city: 'Roma',
+                shortTitle: 'Dom 01 Nov ★',
+                title: '¡Domenica al Museo! Coliseo, Foro Romano y Palatino GRATIS',
+                subtitle: 'Primer domingo del mes: aprovecha la entrada de 0 € en los monumentos más famosos del Imperio Romano.',
+                dailyBudgetEUR: 20.00,
+                hostelCoords: [41.8868, 12.4774],
+                hostelName: 'Borgo Ripa Urban Travel',
+                stops: [
+                    {
+                        id: 'd2_s1',
+                        time: '08:00 – 11:00',
+                        title: 'Coliseo de Roma (Entrada Gratuita Primer Domingo)',
+                        category: 'Monumento 0 €',
+                        costEUR: 0,
+                        coords: [41.8902, 12.4922],
+                        desc: 'Camina 22 minutos desde tu hostal pasando junto al Circo Máximo. En la taquilla de la Piazza del Colosseo reclama tu ticket gratuito por orden de llegada.',
+                        tip: 'Estar en la fila a las 08:00 AM en punto (abre 08:30 AM) te ahorra los 18 € de la entrada regular.',
+                        mapsQuery: 'Colosseo+Roma'
+                    },
+                    {
+                        id: 'd2_s2',
+                        time: '11:15 – 13:45',
+                        title: 'Foro Romano y Monte Palatino',
+                        category: 'Arqueología 0 €',
+                        costEUR: 0,
+                        coords: [41.8925, 12.4853],
+                        desc: 'Con el mismo ticket gratuito entra al Foro Romano y sube al Monte Palatino. Recorre la Vía Sacra, el Arco de Tito, el Templo de Saturno y el mirador imperial.',
+                        tip: 'Dentro del Foro hay fuentes de agua potable (Nasoni) para rellenar tu botella gratis.',
+                        mapsQuery: 'Foro+Romano+Roma'
+                    },
+                    {
+                        id: 'd2_s3',
+                        time: '14:00 – 16:00',
+                        title: 'Almuerzo Bohemio en el Barrio de Monti',
+                        category: 'Gastronomía',
+                        costEUR: 9.00,
+                        coords: [41.8946, 12.4940],
+                        desc: 'Sube un par de cuadras hacia la Piazza della Madonna dei Monti para comer un panino artesanal o pasta para llevar sentado en la fuente.',
+                        tip: 'Monti está justo detrás del Coliseo pero tiene precios locales mucho más bajos.',
+                        mapsQuery: 'Piazza+della+Madonna+dei+Monti+Roma'
+                    },
+                    {
+                        id: 'd2_s4',
+                        time: '16:30 – 19:30',
+                        title: 'Piazza del Campidoglio y Terrazas del Vittoriano',
+                        category: 'Mirador Gratis',
+                        costEUR: 0,
+                        coords: [41.8933, 12.4829],
+                        desc: 'Sube por la escalinata diseñada por Miguel Ángel a la Plaza del Capitolio y entra sin costo a las terrazas panorámicas del Monumento a Vittorio Emanuele II (Altar de la Patria).',
+                        tip: 'Por el callejón derecho detrás del Palacio Senatorio (Via Monte Tarpeo) tienes la mejor vista nocturna gratuita de todo el Foro Romano.',
+                        mapsQuery: 'Piazza+del+Campidoglio+Roma'
+                    }
+                ]
+            },
+            {
+                id: 3,
+                city: 'Roma',
+                shortTitle: 'Lun 02 Nov',
+                title: 'Roma Barroca: Panteón, Fontana di Trevi y Plazas Icónicas',
+                subtitle: 'El circuito peatonal más hermoso del mundo: fuentes monumentales, Caravaggios gratis y helado artesanal.',
+                dailyBudgetEUR: 25.00,
+                hostelCoords: [41.8868, 12.4774],
+                hostelName: 'Borgo Ripa Urban Travel',
+                stops: [
+                    {
+                        id: 'd3_s1',
+                        time: '09:00 – 11:30',
+                        title: 'Campo de\' Fiori, Piazza Navona y Caravaggios Gratis',
+                        category: 'Plazas & Arte',
+                        costEUR: 0,
+                        coords: [41.8992, 12.4731],
+                        desc: 'Cruza el Puente Sisto hacia el mercado matutino de Campo de\' Fiori, admira la Fuente de los Cuatro Ríos en Piazza Navona y entra gratis a la iglesia San Luigi dei Francesi.',
+                        tip: 'En San Luigi dei Francesi verás 3 cuadros originales de Caravaggio (La vocación de San Mateo) sin pagar museo.',
+                        mapsQuery: 'Piazza+Navona+Roma'
+                    },
+                    {
+                        id: 'd3_s2',
+                        time: '11:45 – 14:00',
+                        title: 'Panteón de Agripa e Iglesia Sant\'Ignazio di Loyola',
+                        category: 'Monumento',
+                        costEUR: 5.00,
+                        coords: [41.8986, 12.4769],
+                        desc: 'Maravíllate con la cúpula del Panteón (5 €) y camina 3 minutos hasta la Iglesia de Sant\'Ignazio di Loyola (entrada libre para ver su famoso techo en perspectiva 3D).',
+                        tip: 'A un costado del Panteón, en la Antica Salumeria, puedes pedir una focaccia rellena gigante de mortadela por ~6 €.',
+                        mapsQuery: 'Pantheon+Roma'
+                    },
+                    {
+                        id: 'd3_s3',
+                        time: '15:00 – 17:00',
+                        title: 'Fontana di Trevi y Gelato Artesanal',
+                        category: 'Imperdible',
+                        costEUR: 3.50,
+                        coords: [41.9009, 12.4833],
+                        desc: 'Lanza tu moneda de espaldas en la Fontana di Trevi para asegurar tu regreso a Roma y disfruta de un cono de gelato de pistacho y stracciatella.',
+                        tip: 'Nunca compres helado donde las montañas de colores brillen artificialmente; busca letreros de "Gelato Artigianale".',
+                        mapsQuery: 'Fontana+di+Trevi+Roma'
+                    },
+                    {
+                        id: 'd3_s4',
+                        time: '17:30 – 20:00',
+                        title: 'Piazza di Spagna y Atardecer en Terraza del Pincio',
+                        category: 'Mirador Gratis',
+                        costEUR: 0,
+                        coords: [41.9110, 12.4795],
+                        desc: 'Sube la Escalinata de la Plaza de España y camina por el borde alto hasta la Terrazza del Pincio (Villa Borghese) para ver el sol caer detrás de Piazza del Popolo.',
+                        tip: 'Para regresar descansada a Trastevere puedes tomar el bus junto al río Tíber por 1,50 €.',
+                        mapsQuery: 'Terrazza+del+Pincio+Roma'
+                    }
+                ]
+            },
+            {
+                id: 4,
+                city: 'Roma',
+                shortTitle: 'Mar 03 Nov',
+                title: 'Ciudad del Vaticano, San Pedro y Castillo de Sant\'Angelo',
+                subtitle: 'Visita la iglesia más grande de la cristiandad sin costo y recorre el puente de los ángeles de Bernini.',
+                dailyBudgetEUR: 22.00,
+                hostelCoords: [41.8868, 12.4774],
+                hostelName: 'Borgo Ripa Urban Travel',
+                stops: [
+                    {
+                        id: 'd4_s1',
+                        time: '07:30 – 11:30',
+                        title: 'Basílica y Plaza de San Pedro (Ciudad del Vaticano)',
+                        category: 'Gratis 0 €',
+                        costEUR: 0,
+                        coords: [41.9022, 12.4539],
+                        desc: 'Camina 25 minutos bordeando el Tíber desde Trastevere. Entrar a la Plaza y a la Basílica de San Pedro es 100% gratuito. Adentro verás La Piedad de Miguel Ángel y el Baldaquino de Bernini.',
+                        tip: 'Llegando entre 07:30 y 08:00 AM pasas directo el control de seguridad. Recuerda llevar hombros y rodillas cubiertos.',
+                        mapsQuery: 'Basilica+di+San+Pietro+Vaticano'
+                    },
+                    {
+                        id: 'd4_s2',
+                        time: '12:00 – 14:30',
+                        title: 'Via della Conciliazione y Puente de Sant\'Angelo',
+                        category: 'Paseo Histórico',
+                        costEUR: 0,
+                        coords: [41.9031, 12.4663],
+                        desc: 'Camina desde el Vaticano hasta la fortaleza circular del Castillo de Sant\'Angelo y cruza el puente peatonal más fotogénico de Roma.',
+                        tip: 'En las calles de Borgo Pio (al lado del Vaticano) hay panaderías donde puedes almorzar por 5 € - 7 €.',
+                        mapsQuery: 'Ponte+Sant+Angelo+Roma'
+                    },
+                    {
+                        id: 'd4_s3',
+                        time: '18:30 – 21:30',
+                        title: 'Cena Tradicional en Sartén: Tonnarello (Trastevere)',
+                        category: 'Cena Especial',
+                        costEUR: 14.00,
+                        coords: [41.8899, 12.4689],
+                        desc: 'Regresa por la renacentista Via Giulia y date el gusto de cenar una auténtica pasta romana (Cacio e Pepe, Carbonara o Amatriciana) servida en sartén en Tonnarello.',
+                        tip: 'Si hay fila en Via della Paglia, camina 1 minuto a Tonnarello Calisto o Tonnarello Scala: es el mismo dueño y menú.',
+                        mapsQuery: 'Tonnarello+Via+della+Paglia+Roma'
+                    }
+                ]
+            },
+            {
+                id: 5,
+                city: 'Roma',
+                shortTitle: 'Mié 04 Nov',
+                title: 'El Moisés de Miguel Ángel, Basílicas y Compras Inteligentes',
+                subtitle: 'Último día completo en Roma descubriendo tesoros gratuitos y comprando recuerdos a precio local.',
+                dailyBudgetEUR: 20.00,
+                hostelCoords: [41.8868, 12.4774],
+                hostelName: 'Borgo Ripa Urban Travel',
+                stops: [
+                    {
+                        id: 'd5_s1',
+                        time: '09:30 – 11:30',
+                        title: 'San Pietro in Vincoli (El Moisés de Miguel Ángel)',
+                        category: 'Arte Gratis',
+                        costEUR: 0,
+                        coords: [41.8938, 12.4931],
+                        desc: 'Entra gratis a esta basílica para contemplar de cerca la impresionante escultura en mármol del Moisés esculpida por Miguel Ángel en 1515.',
+                        tip: 'Lleva una moneda de 1 € por si quieres encender la iluminación especial del altar.',
+                        mapsQuery: 'Basilica+di+San+Pietro+in+Vincoli+Roma'
+                    },
+                    {
+                        id: 'd5_s2',
+                        time: '12:00 – 15:00',
+                        title: 'Basílica Papal de Santa Maria Maggiore',
+                        category: 'Gratis 0 €',
+                        costEUR: 0,
+                        coords: [41.8976, 12.4984],
+                        desc: 'Visita una de las cuatro basílicas papales mayores de Roma, con techos artesonados recubiertos en oro real y mosaicos paleocristianos.',
+                        tip: 'La entrada a la nave principal es completamente gratuita.',
+                        mapsQuery: 'Basilica+Papale+di+Santa+Maria+Maggiore+Roma'
+                    },
+                    {
+                        id: 'd5_s3',
+                        time: '16:30 – 21:00',
+                        title: 'Compras en Supermercado y Despedida en Trastevere',
+                        category: 'Compras & Cena',
+                        costEUR: 15.00,
+                        coords: [41.8880, 12.4730],
+                        desc: 'Pasa por un supermercado local en Viale di Trastevere para comprar chocolates, café o quesos para llevar a Colombia, y disfruta tu última noche junto al río.',
+                        tip: 'Deja tu maleta armada esta noche para aprovechar toda la mañana del jueves sin prisas.',
+                        mapsQuery: 'Viale+di+Trastevere+Roma'
+                    }
+                ]
+            },
+            {
+                id: 6,
+                city: 'Madrid',
+                shortTitle: 'Jue 05 Nov ✈️',
+                title: 'Vuelo a España y Noche de Tapas en el Madrid de los Austrias',
+                subtitle: 'Mañana libre en Trastevere, vuelo UX1042 a las 15:55 y noche caminable desde Ok Hostel Madrid.',
+                dailyBudgetEUR: 22.00,
+                hostelCoords: [40.4115, -3.7062],
+                hostelName: 'Ok Hostel Madrid',
+                stops: [
+                    {
+                        id: 'd6_s1',
+                        time: '12:00 – 15:55',
+                        title: 'Tren FL1 a Fiumicino y Vuelo UX1042 hacia Madrid',
+                        category: 'Vuelo',
+                        costEUR: 9.50,
+                        coords: [41.8868, 12.4774],
+                        desc: 'Haz check-out en Borgo Ripa a las 11:30 AM, toma el tren FL1 en Roma Trastevere (8 €) hacia el aeropuerto Fiumicino. Vuelo Air Europa UX1042 sale 15:55 y aterriza en Madrid a las 18:30.',
+                        tip: 'Pide en el mostrador de Roma que tu maleta documentada vaya directo hasta Bogotá (BOG).',
+                        mapsQuery: 'Stazione+Roma+Trastevere'
+                    },
+                    {
+                        id: 'd6_s2',
+                        time: '18:30 – 20:00',
+                        title: 'Llegada a Madrid y Check-in en Ok Hostel (La Latina)',
+                        category: 'Logística',
+                        costEUR: 4.50,
+                        coords: [40.4115, -3.7062],
+                        desc: 'Toma el Metro hasta Tirso de Molina (o Cercanías hasta Sol/Atocha por 2,60 €) y regístrate en Ok Hostel Madrid (Calle Juanelo 24).',
+                        tip: 'Estás en el corazón de La Latina: todo el centro histórico de Madrid está a menos de 10 minutos a pie.',
+                        mapsQuery: 'Ok+Hostel+Madrid+Calle+Juanelo+24'
+                    },
+                    {
+                        id: 'd6_s3',
+                        time: '20:15 – 23:00',
+                        title: 'Plaza Mayor, Puerta del Sol y Cava Baja',
+                        category: 'Noche Madrileña',
+                        costEUR: 8.00,
+                        coords: [40.4155, -3.7074],
+                        desc: 'Camina 7 minutos hasta la Plaza Mayor, prueba el tradicional bocadillo de calamares (~4,50 € en La Campana / Calle Botoneras), visita el Kilómetro Cero en la Puerta del Sol y regresa por la calle de tapas Cava Baja.',
+                        tip: 'Madrid de noche es muy segura y animada; las calles entre Sol, Plaza Mayor y La Latina están llenas de vida.',
+                        mapsQuery: 'Plaza+Mayor+Madrid'
+                    }
+                ]
+            },
+            {
+                id: 7,
+                city: 'Madrid',
+                shortTitle: 'Vie 06 Nov 🇨🇴',
+                title: 'Mañana Real en Madrid, Churros en San Ginés y Vuelo a Bogotá',
+                subtitle: 'Aprovecha la mañana para ver el Palacio Real y desayunar churros antes de tu vuelo UX193 de las 15:15.',
+                dailyBudgetEUR: 10.50,
+                hostelCoords: [40.4115, -3.7062],
+                hostelName: 'Ok Hostel Madrid',
+                stops: [
+                    {
+                        id: 'd7_s1',
+                        time: '08:30 – 09:30',
+                        title: 'Chocolatería San Ginés (Churros con Chocolate)',
+                        category: 'Clásico Madrileño',
+                        costEUR: 5.90,
+                        coords: [40.4167, -3.7070],
+                        desc: 'Después del desayuno del hostal, camina 10 minutos hasta el histórico Pasadizo de San Ginés (fundado en 1894) o su sede contigua en Calle Bordadores 9.',
+                        tip: 'Si el salón principal tiene fila, en la sede de Bordadores 9 (a media cuadra) te atienden de inmediato.',
+                        mapsQuery: 'Chocolateria+San+Gines+Madrid'
+                    },
+                    {
+                        id: 'd7_s2',
+                        time: '09:35 – 11:10',
+                        title: 'Catedral de la Almudena, Palacio Real y Jardines de Sabatini',
+                        category: 'Mirador Gratis',
+                        costEUR: 0,
+                        coords: [40.4180, -3.7143],
+                        desc: 'Camina por la Calle Mayor pasando por el exterior del Mercado de San Miguel hasta la Catedral de la Almudena (entrada libre), la Plaza de Oriente y los Jardines de Sabatini junto al Palacio Real.',
+                        tip: 'Las vistas desde la explanada entre el Palacio Real y la Almudena y los Jardines de Sabatini son 100% gratuitas.',
+                        mapsQuery: 'Palacio+Real+de+Madrid'
+                    },
+                    {
+                        id: 'd7_s3',
+                        time: '11:45 – 15:15',
+                        title: 'Recoger Bolso en Hostal, Rumbo a Barajas y Vuelo UX193',
+                        category: 'Regreso a Casa',
+                        costEUR: 4.50,
+                        coords: [40.4115, -3.7062],
+                        desc: 'Pasa a las 11:20 AM por Ok Hostel Madrid por tu bolso de mano y toma el Metro o Cercanías hacia el Aeropuerto Madrid-Barajas para llegar a las 12:30 PM. Tu vuelo UX193 despega a las 15:15 y aterriza en Bogotá a las 19:35.',
+                        tip: '¡Buen viaje de regreso a casa, Ana María!',
+                        mapsQuery: 'Aeropuerto+Adolfo+Suarez+Madrid+Barajas'
+                    }
+                ]
+            }
+        ];
+
+        // ==========================================
+        // 3. CURATED BUDGET FOOD DIRECTORY
+        // ==========================================
+        const FOOD_SPOTS = [
+            {
+                name: 'Trapizzino | Trastevere',
+                city: 'Roma',
+                zone: 'Piazza Trilussa, 46 (A 5 min de tu hostal)',
+                priceEUR: 5.00,
+                mustOrder: 'Trapizzino de Pollo alla Cacciatora o Albóndigas + Supplì',
+                desc: 'Invento romano premiado: esquina de pizza blanca crujiente rellena de guisos caseros calientes. Económico y llenador.',
+                coords: [41.8916, 12.4705],
+                mapsQuery: 'Trapizzino+Trastevere+Piazza+Trilussa+Roma'
+            },
+            {
+                name: 'Tonnarello (Paglia / Calisto / Scala)',
+                city: 'Roma',
+                zone: 'Via della Paglia 1 / Piazza San Calisto (Trastevere)',
+                priceEUR: 13.00,
+                mustOrder: 'Tonnarelli Cacio e Pepe o Carbonara en sartén',
+                desc: 'La trattoria más famosa de Trastevere. Porciones abundantes servidas directamente en sartén de hierro.',
+                coords: [41.8899, 12.4689],
+                mapsQuery: 'Tonnarello+Trastevere+Roma'
+            },
+            {
+                name: 'Supplì Roma',
+                city: 'Roma',
+                zone: 'Via di S. Francesco a Ripa, 137 (Trastevere)',
+                priceEUR: 3.00,
+                mustOrder: 'Supplì clásico al telefono y Pizza al taglio',
+                desc: 'Favorito de los locales en Trastevere para comer rápido al paso por menos de 5 €.',
+                coords: [41.8862, 12.4728],
+                mapsQuery: 'Suppli+Roma+Via+di+San+Francesco+a+Ripa+137'
+            },
+            {
+                name: 'Antica Salumeria Pantheon',
+                city: 'Roma',
+                zone: 'Piazza della Rotonda, 4 (Frente al Panteón)',
+                priceEUR: 6.50,
+                mustOrder: 'Panino / Focaccia rellena de mortadela y provolone',
+                desc: 'En plena plaza del Panteón, pide en el mostrador del fondo un sándwich gigante recién cortado para llevar.',
+                coords: [41.8990, 12.4767],
+                mapsQuery: 'Antica+Salumeria+Piazza+della+Rotonda+Roma'
+            },
+            {
+                name: 'Bar La Campana (Bocadillo de Calamares)',
+                city: 'Madrid',
+                zone: 'Calle de Botoneras, 6 (Al lado de Plaza Mayor)',
+                priceEUR: 4.50,
+                mustOrder: 'Bocadillo de calamares recién fritos',
+                desc: 'Toda una institución madrileña a 7 minutos caminando desde Ok Hostel. Pan crujiente repleto de calamares tiernos.',
+                coords: [40.4150, -3.7068],
+                mapsQuery: 'Bar+La+Campana+Calle+Botoneras+Madrid'
+            },
+            {
+                name: 'Chocolatería San Ginés (Pasadizo & Bordadores)',
+                city: 'Madrid',
+                zone: 'Pasadizo de San Ginés, 5 / Calle Bordadores, 9',
+                priceEUR: 5.90,
+                mustOrder: 'Chocolate caliente espeso con 6 churros',
+                desc: 'Abierto desde 1894. Ideal para tu noche del jueves o la mañana del viernes antes de caminar al Palacio Real.',
+                coords: [40.4167, -3.7070],
+                mapsQuery: 'Chocolateria+San+Gines+Madrid'
+            }
+        ];
+
+        // ==========================================
+        // 4. CURRENCY FORMATTER HELPER
+        // ==========================================
+        function formatMoney(amountEUR) {
+            if (amountEUR === 0) return 'GRATIS (0 €)';
+            const cfg = CURRENCY_RATES[currentCurrency];
+            const converted = amountEUR * cfg.rate;
+            if (currentCurrency === 'EUR') {
+                return converted.toFixed(2).replace('.', ',') + ' €';
+            } else if (currentCurrency === 'COP') {
+                return '$ ' + Math.round(converted).toLocaleString('es-CO') + ' COP';
+            } else {
+                return 'A$ ' + converted.toFixed(2) + ' AUD';
+            }
+        }
+
+        function setCurrency(curr) {
+            currentCurrency = curr;
+            localStorage.setItem('ana_trip_currency', curr);
+            ['EUR', 'COP', 'AUD'].forEach(c => {
+                const btn = document.getElementById('currBtn' + c);
+                if (c === curr) {
+                    btn.className = 'px-2.5 py-1 text-xs font-mono font-bold rounded-lg bg-white dark:bg-slate-700 text-terracotta shadow-sm transition';
+                } else {
+                    btn.className = 'px-2.5 py-1 text-xs font-mono font-bold rounded-lg text-stone-600 dark:text-slate-400 hover:text-stone-900 transition';
+                }
+            });
+            renderAllViews();
+        }
+
+        // ==========================================
+        // 5. LEAFLET INTERACTIVE MAP INITIALIZATION
+        // ==========================================
+        let map = null;
+        let markersLayer = null;
+        let routeLine = null;
+
+        function initMap() {
+            if (map) return;
+            map = L.map('tripMap', {
+                zoomControl: true,
+                scrollWheelZoom: false
+            }).setView([41.8930, 12.4774], 14);
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap &copy; CARTO',
+                maxZoom: 19
+            }).addTo(map);
+
+            markersLayer = L.layerGroup().addTo(map);
+            updateMapForDay(selectedDayId);
+        }
+
+        function createCustomIcon(label, bgColor) {
+            return L.divIcon({
+                className: 'custom-div-icon',
+                html: `<div class="custom-pin" style="width:28px;height:28px;background-color:${bgColor};">${label}</div>`,
+                iconSize: [28, 28],
+                iconAnchor: [14, 14],
+                popupAnchor: [0, -14]
+            });
+        }
+
+        function updateMapForDay(dayId) {
+            if (!map || !markersLayer) return;
+            markersLayer.clearLayers();
+            if (routeLine) {
+                map.removeLayer(routeLine);
+                routeLine = null;
+            }
+
+            const dayObj = TRIP_DAYS.find(d => d.id === dayId);
+            if (!dayObj) return;
+
+            const latlngs = [];
+
+            // 1. Plot Hostel Base Marker
+            const hostelMarker = L.marker(dayObj.hostelCoords, {
+                icon: createCustomIcon('H', '#059669')
+            }).bindPopup(`
+                <div class="p-1 space-y-1">
+                    <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-700">Hostal Base (${dayObj.city})</span>
+                    <p class="font-bold text-sm mt-1">${dayObj.hostelName}</p>
+                    <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dayObj.hostelName + ' ' + dayObj.city)}" target="_blank" class="inline-block text-xs font-bold text-terracotta underline mt-1">Cómo llegar en Google Maps →</a>
+                </div>
+            `);
+            markersLayer.addLayer(hostelMarker);
+            latlngs.push(dayObj.hostelCoords);
+
+            // 2. Plot Day Stops
+            dayObj.stops.forEach((stop, index) => {
+                latlngs.push(stop.coords);
+                const marker = L.marker(stop.coords, {
+                    icon: createCustomIcon(String(index + 1), '#C85A32')
+                }).bindPopup(`
+                    <div class="p-1 max-w-[230px] space-y-1">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-[10px] font-mono font-bold text-terracotta">${stop.time}</span>
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-stone-100 text-stone-700">${formatMoney(stop.costEUR)}</span>
+                        </div>
+                        <p class="font-bold text-sm leading-snug">${stop.title}</p>
+                        <p class="text-xs text-stone-600 leading-relaxed">${stop.tip}</p>
+                        <a href="https://www.google.com/maps/search/?api=1&query=${stop.mapsQuery}" target="_blank" class="inline-block text-xs font-bold text-terracotta underline pt-1">Abrir en Google Maps →</a>
+                    </div>
+                `);
+                markersLayer.addLayer(marker);
+            });
+
+            // 3. Draw Walking Polyline
+            routeLine = L.polyline(latlngs, {
+                color: '#C85A32',
+                weight: 3.5,
+                opacity: 0.8,
+                dashArray: '8, 8'
+            }).addTo(map);
+
+            if (latlngs.length > 0) {
+                map.fitBounds(L.latLngBounds(latlngs), { padding: [36, 36], maxZoom: 15 });
+            }
+
+            document.getElementById('mapSubtitle').textContent = `Mostrando ruta: ${dayObj.shortTitle} (${dayObj.city})`;
+        }
+
+        function showAllCityPins(cityKey) {
+            if (!map || !markersLayer) return;
+            markersLayer.clearLayers();
+            if (routeLine) {
+                map.removeLayer(routeLine);
+                routeLine = null;
+            }
+
+            const targetCity = cityKey === 'madrid' ? 'Madrid' : 'Roma';
+            const latlngs = [];
+
+            TRIP_DAYS.filter(d => d.city === targetCity).forEach(dayObj => {
+                dayObj.stops.forEach(stop => {
+                    latlngs.push(stop.coords);
+                    const m = L.marker(stop.coords, {
+                        icon: createCustomIcon('•', '#C85A32')
+                    }).bindPopup(`
+                        <div class="p-1 max-w-[220px] space-y-1">
+                            <span class="text-[10px] font-bold uppercase text-terracotta">${dayObj.shortTitle}</span>
+                            <p class="font-bold text-sm">${stop.title}</p>
+                            <p class="text-xs text-stone-600">${stop.tip}</p>
+                            <a href="https://www.google.com/maps/search/?api=1&query=${stop.mapsQuery}" target="_blank" class="inline-block text-xs font-bold text-terracotta underline">Google Maps →</a>
+                        </div>
+                    `);
+                    markersLayer.addLayer(m);
+                });
+            });
+
+            FOOD_SPOTS.filter(f => f.city === targetCity).forEach(food => {
+                latlngs.push(food.coords);
+                const fm = L.marker(food.coords, {
+                    icon: createCustomIcon('🍕', '#D97706')
+                }).bindPopup(`
+                    <div class="p-1 max-w-[220px] space-y-1">
+                        <span class="text-[10px] font-bold uppercase text-amber-600">Gastronomía Low-Cost</span>
+                        <p class="font-bold text-sm">${food.name}</p>
+                        <p class="text-xs text-stone-600">${food.mustOrder} (${formatMoney(food.priceEUR)})</p>
+                        <a href="https://www.google.com/maps/search/?api=1&query=${food.mapsQuery}" target="_blank" class="inline-block text-xs font-bold text-terracotta underline">Google Maps →</a>
+                    </div>
+                `);
+                markersLayer.addLayer(fm);
+            });
+
+            if (latlngs.length > 0) {
+                map.fitBounds(L.latLngBounds(latlngs), { padding: [35, 35] });
+            }
+            document.getElementById('mapSubtitle').textContent = `Todos los puntos recomendados en ${targetCity}`;
+        }
+
+        function fitMapToCurrentBounds() {
+            updateMapForDay(selectedDayId);
+        }
+
+        function focusStopOnMap(lat, lng, stopId) {
+            if (!map) return;
+            map.setView([lat, lng], 16, { animate: true });
+            // Scroll map into view on mobile
+            if (window.innerWidth < 1024) {
+                document.getElementById('tripMap').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        // ==========================================
+        // 6. RENDER DAY SELECTOR & TIMELINE
+        // ==========================================
+        function selectDay(dayId) {
+            selectedDayId = dayId;
+            localStorage.setItem('ana_trip_day', dayId);
+            switchMainTab('itinerary');
+            renderDaySelector();
+            renderDayTimeline();
+            updateMapForDay(dayId);
+        }
+
+        function renderDaySelector() {
+            const bar = document.getElementById('daySelectorBar');
+            bar.innerHTML = TRIP_DAYS.map(day => {
+                const isActive = day.id === selectedDayId;
+                const totalStops = day.stops.length;
+                const doneStops = day.stops.filter(s => checkedActivities[s.id]).length;
+                return `
+                    <button onclick="selectDay(${day.id})" class="shrink-0 px-4 py-2.5 rounded-2xl border text-left transition flex items-center gap-2.5 ${
+                        isActive 
+                        ? 'bg-terracotta text-white border-terracotta shadow-md shadow-terracotta/20' 
+                        : 'bg-white dark:bg-slate-800 text-stone-700 dark:text-slate-300 border-stone-200/80 dark:border-slate-700 hover:border-terracotta'
+                    }">
+                        <div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-[10px] font-bold uppercase tracking-wider ${isActive ? 'text-orange-100' : 'text-terracotta'}">Día ${day.id} • ${day.city}</span>
+                                ${doneStops === totalStops ? '<span class="text-[10px] bg-emerald-500 text-white px-1.5 rounded-full">✓</span>' : ''}
+                            </div>
+                            <p class="font-bold text-xs sm:text-sm whitespace-nowrap">${day.shortTitle}</p>
+                        </div>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function renderDayTimeline() {
+            const day = TRIP_DAYS.find(d => d.id === selectedDayId);
+            if (!day) return;
+
+            const doneCount = day.stops.filter(s => checkedActivities[s.id]).length;
+
+            // Render Summary Card
+            document.getElementById('daySummaryCard').innerHTML = `
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div class="space-y-1">
+                        <div class="inline-flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-terracotta/15 text-terracotta">Día ${day.id} • ${day.city}</span>
+                            <span class="text-xs font-medium text-stone-500 dark:text-slate-400">Base: <strong>${day.hostelName}</strong></span>
+                        </div>
+                        <h2 class="font-editorial font-bold text-2xl sm:text-3xl text-stone-900 dark:text-white leading-tight">${day.title}</h2>
+                        <p class="text-xs sm:text-sm text-stone-600 dark:text-slate-300">${day.subtitle}</p>
+                    </div>
+                    <div class="bg-stone-50 dark:bg-slate-900/80 px-3.5 py-2 rounded-xl border border-stone-200/70 dark:border-slate-700 text-right shrink-0">
+                        <p class="text-[10px] uppercase tracking-wider text-stone-400 font-semibold">Presupuesto Día ${day.id}</p>
+                        <p class="font-mono font-bold text-sm sm:text-base text-terracotta">${formatMoney(day.dailyBudgetEUR)}</p>
+                        <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">${doneCount}/${day.stops.length} completados</p>
+                    </div>
+                </div>
+            `;
+
+            // Render Stops
+            const container = document.getElementById('timelineContainer');
+            container.innerHTML = day.stops.map((stop, idx) => {
+                const isDone = !!checkedActivities[stop.id];
+                return `
+                    <div class="rounded-2xl bg-white dark:bg-slate-800/95 border transition p-4 sm:p-5 shadow-sm ${
+                        isDone ? 'border-emerald-500/40 bg-emerald-50/20 dark:bg-emerald-950/10 opacity-85' : 'border-stone-200/80 dark:border-slate-700'
+                    }">
+                        <div class="flex items-start gap-3.5">
+                            <!-- Interactive Checkbox -->
+                            <button onclick="toggleActivityCheck('${stop.id}')" class="mt-0.5 w-6 h-6 rounded-lg border-2 flex items-center justify-center shrink-0 transition ${
+                                isDone ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-stone-300 dark:border-slate-600 hover:border-terracotta'
+                            }" title="Marcar actividad como realizada">
+                                ${isDone ? '✓' : `<span class="text-[11px] font-bold text-stone-400">${idx + 1}</span>`}
+                            </button>
+
+                            <div class="flex-1 min-w-0 space-y-2">
+                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-stone-100 dark:bg-slate-700 text-stone-800 dark:text-slate-200">${stop.time}</span>
+                                        <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-terracotta/10 text-terracotta">${stop.category}</span>
+                                    </div>
+                                    <span class="font-mono text-xs font-bold px-2.5 py-0.5 rounded-full ${
+                                        stop.costEUR === 0 
+                                        ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300' 
+                                        : 'bg-amber-500/15 text-amber-800 dark:text-amber-300'
+                                    }">${formatMoney(stop.costEUR)}</span>
+                                </div>
+
+                                <h3 class="font-bold text-base sm:text-lg text-stone-900 dark:text-white ${isDone ? 'line-through text-stone-400 dark:text-slate-500' : ''}">
+                                    ${stop.title}
+                                </h3>
+
+                                <p class="text-xs sm:text-sm text-stone-600 dark:text-slate-300 leading-relaxed">
+                                    ${stop.desc}
+                                </p>
+
+                                <!-- Insider Tip Box -->
+                                <div class="rounded-xl bg-amber-500/10 border border-amber-500/20 px-3 py-2 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2">
+                                    <i data-lucide="lightbulb" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+                                    <span><strong>Tip de ahorro:</strong> ${stop.tip}</span>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="flex flex-wrap items-center gap-2 pt-1">
+                                    <button onclick="focusStopOnMap(${stop.coords[0]}, ${stop.coords[1]}, '${stop.id}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-100 dark:bg-slate-700/80 hover:bg-terracotta hover:text-white text-stone-700 dark:text-slate-200 text-xs font-semibold transition">
+                                        <i data-lucide="locate-fixed" class="w-3.5 h-3.5"></i> Ver en Mapa
+                                    </button>
+                                    <a href="https://www.google.com/maps/search/?api=1&query=${stop.mapsQuery}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-100 dark:bg-slate-700/80 hover:bg-stone-200 text-stone-700 dark:text-slate-200 text-xs font-semibold transition">
+                                        <i data-lucide="external-link" class="w-3.5 h-3.5 text-terracotta"></i> Abrir Google Maps
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Load personal note for this day
+            const noteInput = document.getElementById('dayNoteInput');
+            if (noteInput) {
+                noteInput.value = dayNotes[selectedDayId] || '';
+            }
+
+            lucide.createIcons();
+            updateHeaderProgress();
+        }
+
+        function toggleActivityCheck(stopId) {
+            checkedActivities[stopId] = !checkedActivities[stopId];
+            localStorage.setItem('ana_trip_checked', JSON.stringify(checkedActivities));
+            renderDaySelector();
+            renderDayTimeline();
+        }
+
+        function updateHeaderProgress() {
+            let total = 0;
+            let done = 0;
+            TRIP_DAYS.forEach(d => {
+                d.stops.forEach(s => {
+                    total++;
+                    if (checkedActivities[s.id]) done++;
+                });
+            });
+            const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+            document.getElementById('headerProgressText').textContent = `${done} / ${total} planes (${pct}%)`;
+            document.getElementById('headerProgressBar').style.width = `${pct}%`;
+        }
+
+        function saveDayNote(val) {
+            dayNotes[selectedDayId] = val;
+            localStorage.setItem('ana_trip_notes', JSON.stringify(dayNotes));
+            const badge = document.getElementById('noteSavedBadge');
+            badge.style.opacity = '1';
+            setTimeout(() => { badge.style.opacity = '0'; }, 1500);
+        }
+
+        // ==========================================
+        // 7. RENDER FOOD DIRECTORY
+        // ==========================================
+        let currentFoodFilter = 'all';
+
+        function filterFood(filterKey) {
+            currentFoodFilter = filterKey;
+            ['all', 'Roma', 'Madrid'].forEach(k => {
+                const btn = document.getElementById('foodFilter-' + k);
+                if (k === filterKey) {
+                    btn.className = 'food-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-slate-700 text-terracotta shadow-sm';
+                } else {
+                    btn.className = 'food-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-stone-600 dark:text-slate-300';
+                }
+            });
+            renderFoodGrid();
+        }
+
+        function renderFoodGrid() {
+            const container = document.getElementById('foodGridContainer');
+            const list = currentFoodFilter === 'all' ? FOOD_SPOTS : FOOD_SPOTS.filter(f => f.city === currentFoodFilter);
+
+            container.innerHTML = list.map(item => `
+                <div class="rounded-2xl bg-white dark:bg-slate-800 border border-stone-200/80 dark:border-slate-700 p-5 shadow-sm flex flex-col justify-between space-y-3">
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-terracotta/15 text-terracotta">${item.city}</span>
+                            <span class="font-mono font-bold text-sm text-emerald-700 dark:text-emerald-400">~${formatMoney(item.priceEUR)}</span>
+                        </div>
+                        <h3 class="font-editorial font-bold text-xl text-stone-900 dark:text-white">${item.name}</h3>
+                        <p class="text-xs text-stone-500 dark:text-slate-400 flex items-center gap-1">
+                            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-terracotta shrink-0"></i> ${item.zone}
+                        </p>
+                        <p class="text-xs text-stone-600 dark:text-slate-300 leading-relaxed">${item.desc}</p>
+                        <div class="p-2.5 rounded-xl bg-amber-500/10 text-xs text-amber-900 dark:text-amber-200">
+                            <strong>Qué pedir:</strong> ${item.mustOrder}
+                        </div>
+                    </div>
+                    <a href="https://www.google.com/maps/search/?api=1&query=${item.mapsQuery}" target="_blank" rel="noopener noreferrer" class="w-full py-2 rounded-xl bg-stone-100 dark:bg-slate-700 hover:bg-terracotta hover:text-white text-stone-800 dark:text-slate-200 font-bold text-xs transition flex items-center justify-center gap-1.5">
+                        <i data-lucide="navigation" class="w-3.5 h-3.5"></i> Cómo llegar en Google Maps
+                    </a>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // ==========================================
+        // 8. RENDER INTERACTIVE BUDGET TRACKER
+        // ==========================================
+        function renderBudgetTracker() {
+            const baseEstimatedEUR = 181.50;
+            const spentEUR = budgetItems.filter(i => i.paid).reduce((acc, i) => acc + Number(i.amountEUR), 0);
+            const remainingEUR = Math.max(0, baseEstimatedEUR - spentEUR);
+
+            document.getElementById('headerBudgetDisplay').textContent = formatMoney(baseEstimatedEUR);
+            document.getElementById('budgetTotalEstimated').textContent = formatMoney(baseEstimatedEUR);
+            document.getElementById('budgetTotalSpent').textContent = formatMoney(spentEUR);
+            document.getElementById('budgetRemainingText').textContent = `Restante frente a meta base: ${formatMoney(remainingEUR)}`;
+
+            const listEl = document.getElementById('budgetItemsList');
+            listEl.innerHTML = budgetItems.map(item => `
+                <div class="py-3 flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <button onclick="toggleBudgetPaid('${item.id}')" class="w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition ${
+                            item.paid ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-stone-300 dark:border-slate-600'
+                        }">
+                            ${item.paid ? '✓' : ''}
+                        </button>
+                        <div class="min-w-0">
+                            <p class="text-xs sm:text-sm font-semibold text-stone-900 dark:text-white truncate ${item.paid ? 'line-through text-stone-400' : ''}">${item.title}</p>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-stone-400">${item.category} • ${item.paid ? 'Pagado' : 'Pendiente'}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <span class="font-mono font-bold text-xs sm:text-sm ${item.paid ? 'text-emerald-600 dark:text-emerald-400' : 'text-stone-800 dark:text-slate-200'}">
+                            ${formatMoney(item.amountEUR)}
+                        </span>
+                        ${item.id.startsWith('cust_') ? `
+                            <button onclick="deleteBudgetItem('${item.id}')" class="text-stone-400 hover:text-rose-500 p-1" title="Eliminar">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function toggleBudgetPaid(itemId) {
+            budgetItems = budgetItems.map(item => item.id === itemId ? { ...item, paid: !item.paid } : item);
+            localStorage.setItem('ana_trip_budget', JSON.stringify(budgetItems));
+            renderBudgetTracker();
+        }
+
+        function addCustomExpense(e) {
+            e.preventDefault();
+            const title = document.getElementById('expTitle').value.trim();
+            const amount = parseFloat(document.getElementById('expAmount').value);
+            const category = document.getElementById('expCategory').value;
+            if (!title || isNaN(amount)) return;
+
+            budgetItems.unshift({
+                id: 'cust_' + Date.now(),
+                title,
+                category,
+                amountEUR: amount,
+                paid: true
+            });
+            localStorage.setItem('ana_trip_budget', JSON.stringify(budgetItems));
+            document.getElementById('expTitle').value = '';
+            document.getElementById('expAmount').value = '';
+            renderBudgetTracker();
+            showToast('Gasto registrado en la billetera');
+        }
+
+        function deleteBudgetItem(itemId) {
+            budgetItems = budgetItems.filter(i => i.id !== itemId);
+            localStorage.setItem('ana_trip_budget', JSON.stringify(budgetItems));
+            renderBudgetTracker();
+        }
+
+        function resetBudgetTracker() {
+            budgetItems = JSON.parse(JSON.stringify(defaultBudgetItems));
+            localStorage.setItem('ana_trip_budget', JSON.stringify(budgetItems));
+            renderBudgetTracker();
+            showToast('Presupuesto restablecido');
+        }
+
+        // ==========================================
+        // 9. NAVIGATION, MODALS & UTILITIES
+        // ==========================================
+        function switchMainTab(tabName) {
+            document.querySelectorAll('.tab-section').forEach(sec => sec.classList.add('hidden'));
+            document.getElementById('tab-' + tabName).classList.remove('hidden');
+
+            // Update Desktop Tab Styles
+            document.querySelectorAll('.main-tab-btn').forEach(btn => {
+                if (btn.dataset.tab === tabName) {
+                    btn.className = 'main-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-terracotta text-white shadow-sm transition';
+                } else {
+                    btn.className = 'main-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-stone-600 dark:text-slate-300 hover:bg-stone-200/60 dark:hover:bg-slate-800 transition';
+                }
+            });
+
+            // Update Mobile Bottom Bar Styles
+            document.querySelectorAll('.mobile-tab-btn').forEach(btn => {
+                if (btn.dataset.tab === tabName) {
+                    btn.className = 'mobile-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-terracotta font-bold';
+                } else {
+                    btn.className = 'mobile-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-stone-500 dark:text-slate-400 font-medium';
+                }
+            });
+
+            if (tabName === 'itinerary' && map) {
+                setTimeout(() => { map.invalidateSize(); }, 150);
+            }
+        }
+
+        function openTaxiModal(title, address, phrase) {
+            document.getElementById('taxiModalTitle').textContent = title;
+            document.getElementById('taxiModalAddress').textContent = address;
+            document.getElementById('taxiModalPhrase').textContent = `"${phrase}"`;
+            document.getElementById('taxiModal').classList.remove('hidden');
+        }
+
+        function closeTaxiModal() {
+            document.getElementById('taxiModal').classList.add('hidden');
+        }
+
+        function copyText(text, message) {
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            showToast(message || 'Copiado: ' + text);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toastNotification');
+            document.getElementById('toastMessage').textContent = msg;
+            toast.classList.remove('opacity-0', 'translate-y-2');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+            }, 2400);
+        }
+
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            localStorage.setItem('ana_trip_dark', isDark ? '1' : '0');
+        }
+
+        function renderAllViews() {
+            renderDaySelector();
+            renderDayTimeline();
+            renderFoodGrid();
+            renderBudgetTracker();
+            if (map) updateMapForDay(selectedDayId);
+        }
+
+        // Initialize on Window Load
+        window.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('ana_trip_dark') === '1') {
+                document.documentElement.classList.add('dark');
+            }
+            setCurrency(currentCurrency);
+            initMap();
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
