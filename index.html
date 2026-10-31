@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="es" class="scroll-smooth">
 <head>
@@ -158,7 +159,7 @@
                         <i data-lucide="wallet" class="w-4 h-4 text-terracotta"></i>
                         <div class="text-left">
                             <p class="text-[10px] uppercase tracking-wider text-stone-500 dark:text-slate-400 font-semibold">Gasto Estimado</p>
-                            <p id="headerBudgetDisplay" class="text-xs font-mono font-bold text-stone-900 dark:text-white">181,50 €</p>
+                            <p id="headerBudgetDisplay" class="text-xs font-mono font-bold text-stone-900 dark:text-white">201,50 €</p>
                         </div>
                     </button>
 
@@ -704,18 +705,18 @@
              ========================================== -->
         <section id="tab-budget" class="tab-section hidden space-y-6">
             
-            <!-- Top Financial Summary Cards -->
+                <!-- Left: Top Financial Summary Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="rounded-2xl bg-white dark:bg-slate-800 p-5 border border-stone-200 dark:border-slate-700 shadow-sm">
                     <p class="text-xs font-bold uppercase tracking-wider text-stone-400">Presupuesto Base Sugerido</p>
-                    <p id="budgetTotalEstimated" class="font-mono font-bold text-2xl sm:text-3xl text-stone-900 dark:text-white mt-1">181,50 €</p>
-                    <p class="text-xs text-stone-500 dark:text-slate-400 mt-1">Para los 7 días (Vuelos y hostales ya pagos)</p>
+                    <p id="budgetTotalEstimated" class="font-mono font-bold text-2xl sm:text-3xl text-stone-900 dark:text-white mt-1">201,50 €</p>
+                    <p class="text-xs text-stone-500 dark:text-slate-400 mt-1">Incluye Capilla Sixtina y Panteón (Vuelos y hostales ya pagos)</p>
                 </div>
 
                 <div class="rounded-2xl bg-white dark:bg-slate-800 p-5 border border-stone-200 dark:border-slate-700 shadow-sm">
                     <p class="text-xs font-bold uppercase tracking-wider text-terracotta">Total Pagado / Registrado</p>
                     <p id="budgetTotalSpent" class="font-mono font-bold text-2xl sm:text-3xl text-terracotta mt-1">0,00 €</p>
-                    <p id="budgetRemainingText" class="text-xs text-emerald-600 dark:text-emerald-400 font-medium mt-1">Disponible según meta: 181,50 €</p>
+                    <p id="budgetRemainingText" class="text-xs text-emerald-600 dark:text-emerald-400 font-medium mt-1">Disponible según meta: 201,50 €</p>
                 </div>
 
                 <div class="rounded-2xl bg-gradient-to-br from-stone-900 to-stone-800 text-white p-5 shadow-sm flex flex-col justify-between">
@@ -932,6 +933,7 @@
         let currentCurrency = localStorage.getItem('ana_trip_currency') || 'EUR';
         let selectedDayId = parseInt(localStorage.getItem('ana_trip_day') || '1', 10);
         let checkedActivities = JSON.parse(localStorage.getItem('ana_trip_checked') || '{}');
+        let enabledUpgrades = JSON.parse(localStorage.getItem('ana_trip_upgrades') || '{"d4_s2": true}');
         let dayNotes = JSON.parse(localStorage.getItem('ana_trip_notes') || '{}');
 
         function formatMoney(amountEUR) {
@@ -1040,6 +1042,20 @@
                         costEUR: 12.50,
                         coords: [41.8895, 12.4706],
                         mapsQuery: 'Basilica+di+Santa+Maria+in+Trastevere'
+                    },
+                    {
+                        id: 'd1_opt1',
+                        isOptional: true,
+                        time: '10:30 - 11:30 (Optativo)',
+                        category: '💎 Joya Optativa',
+                        title: 'Sinagoga Mayor de Roma y Museo Judío o Cripta de los Capuchinos',
+                        fromPrev: 'Justo al frente del Pórtico de Octavia (Lungotevere de\' Cenci)',
+                        desc: 'Si quieres entrar a uno de los templos más imponentes junto al río o visitar el Museo Judío con tesoros milenarios de la comunidad más antigua de Europa.',
+                        tip: 'Entrada general en taquilla: 11 €. Es 100% opcional si prefieres solo caminar el barrio gratis.',
+                        costEUR: 11.00,
+                        coords: [41.8920, 12.4780],
+                        mapsQuery: 'Tempio+Maggiore+di+Roma',
+                        officialUrl: 'https://museoebraico.roma.it/'
                     }
                 ]
             },
@@ -1102,6 +1118,20 @@
                         mapsQuery: 'Piazza+del+Campidoglio+Roma'
                     },
                     {
+                        id: 'd2_opt1',
+                        isOptional: true,
+                        time: '16:30 - 18:00 (Optativo)',
+                        category: '💎 Joya Optativa',
+                        title: 'Ascensor Panorámico de Cristal (Terrazza delle Quadrighe) o Museos Capitolinos',
+                        fromPrev: 'En la cima del Monumento a Vittorio Emanuele II (Piazza Venezia)',
+                        desc: 'Aunque las terrazas intermedias del Vittoriano son gratis, puedes subir en el ascensor de cristal hasta la azotea más alta junto a las cuadrigas de bronce para una vista de 360° de toda Roma y el Coliseo.',
+                        tip: 'El ascensor panorámico cuesta 17 € (o 15 € entrar a los Museos Capitolinos para ver la Loba Capitolina original).',
+                        costEUR: 17.00,
+                        coords: [41.8946, 12.4832],
+                        mapsQuery: 'Terrazza+delle+Quadrighe+Roma',
+                        officialUrl: 'https://vive.cultura.gov.it/'
+                    },
+                    {
                         id: 'd2_s5',
                         time: '19:30 - 21:30',
                         category: 'Cena Económica',
@@ -1118,9 +1148,9 @@
             {
                 id: 3,
                 city: 'Roma',
-                shortTitle: 'Lun 2 Nov • Roma Barroca',
-                title: 'Panteón de Agripa, Fontana di Trevi y Piazza Navona',
-                subtitle: 'Circuito 100% caminable por las plazas, fuentes y palacios del Centro Histórico',
+                shortTitle: 'Lun 2 Nov • Navona & Trevi',
+                title: 'Piazza Navona, Panteón de Agripa y Fontana di Trevi',
+                subtitle: 'Circuito 100% caminable por las plazas más famosas, fuentes barrocas y palacios del Centro Histórico',
                 hostelName: 'Borgo Ripa Urban Travel',
                 hostelCoords: [41.8868, 12.4774],
                 dailyBudgetEUR: 28.00,
@@ -1128,11 +1158,11 @@
                     {
                         id: 'd3_s1',
                         time: '09:00 - 10:45',
-                        category: 'Mercados & Plazas',
-                        title: 'Mercado de Campo de\' Fiori y Piazza Navona',
+                        category: '⭐ Imperdible #1',
+                        title: 'Piazza Navona (Fuente de los Cuatro Ríos) y Campo de\' Fiori',
                         fromPrev: 'Cruza el Puente Sisto a pie desde Trastevere (12 min)',
-                        desc: 'Pasea por los puestos matutinos de Campo de\' Fiori y llega a Piazza Navona para admirar la Fuente de los Cuatro Ríos de Bernini y la iglesia de Sant\'Agnese in Agone (gratis).',
-                        tip: 'No te sientes en los restaurantes alrededor de Piazza Navona (tienen sobreprecio turístico).',
+                        desc: 'Pasea por el mercado matutino de Campo de\' Fiori y entra a la espectacular Piazza Navona para admirar la Fuente de los Cuatro Ríos de Bernini, el Obelisco y la iglesia de Sant\'Agnese in Agone (entrada gratis).',
+                        tip: 'No te sientes en las terrazas de Piazza Navona (cobran recargo de mesa alto); tómate las fotos allí y pide tu café o helado en las calles laterales.',
                         costEUR: 2.50,
                         coords: [41.8992, 12.4731],
                         mapsQuery: 'Piazza+Navona+Roma'
@@ -1152,11 +1182,11 @@
                     {
                         id: 'd3_s3',
                         time: '13:00 - 15:00',
-                        category: 'Arte Gratis & Fontana',
-                        title: 'Iglesia de Sant\'Ignazio (Espejo 3D) y Fontana di Trevi',
+                        category: '⭐ Imperdible #2',
+                        title: 'Fontana di Trevi e Iglesia de Sant\'Ignazio (Espejo 3D)',
                         fromPrev: 'A 6 minutos caminando por Via del Seminario',
-                        desc: 'Entra gratis a Sant\'Ignazio di Loyola para ver su famoso techo en falsa perspectiva y llega a la Fontana di Trevi para lanzar tu moneda.',
-                        tip: 'Almuerza un panini relleno al corte en las callejuelas cercanas por ~7 €.',
+                        desc: 'Entra gratis a Sant\'Ignazio di Loyola para ver su famoso techo en falsa perspectiva y llega a la icónica Fontana di Trevi para lanzar tu moneda de espaldas sobre el hombro izquierdo.',
+                        tip: 'Almuerza un panini relleno recién cortado en las callejuelas cercanas a Trevi por ~7 €.',
                         costEUR: 7.50,
                         coords: [41.9009, 12.4833],
                         mapsQuery: 'Fontana+di+Trevi+Roma'
@@ -1174,6 +1204,20 @@
                         mapsQuery: 'Terrazza+del+Pincio+Roma'
                     },
                     {
+                        id: 'd3_opt1',
+                        isOptional: true,
+                        time: '15:00 - 16:45 (Optativo)',
+                        category: '💎 Imperdible de Pago',
+                        title: 'Galería Borghese (Las Esculturas de Bernini y Caravaggio) o Subterráneos de Trevi',
+                        fromPrev: 'Dentro del parque de Villa Borghese (Piazzale Scipione Borghese 5)',
+                        desc: 'Considerada la colección de arte más impresionante de Roma: verás el "Rapto de Proserpina" y "Apolo y Dafne" de Bernini tallados en mármol como si fueran piel real. Otra opción barata es Vicus Caprarius (Ciudad del Agua bajo la Fontana di Trevi por 4 €).',
+                        tip: 'La Galería Borghese cuesta 15 € (+2 € reserva obligatoria en web oficial).',
+                        costEUR: 17.00,
+                        coords: [41.9142, 12.4922],
+                        mapsQuery: 'Galleria+Borghese+Roma',
+                        officialUrl: 'https://galleriaborghese.beniculturali.it/'
+                    },
+                    {
                         id: 'd3_s5',
                         time: '19:30 - 21:30',
                         category: 'Cena Romana',
@@ -1184,6 +1228,93 @@
                         costEUR: 10.00,
                         coords: [41.8861, 12.4729],
                         mapsQuery: 'Suppli+Roma+Via+di+San+Francesco+a+Ripa'
+                    }
+                ]
+            },
+            {
+                id: 4,
+                city: 'Roma',
+                shortTitle: 'Mar 3 Nov • Capilla Sixtina',
+                title: 'Basílica de San Pedro, Capilla Sixtina (Museos Vaticanos) y Sant\'Angelo',
+                subtitle: 'Visita estratégica en martes para ver la obra cumbre de Miguel Ángel sin las multitudes del miércoles',
+                hostelName: 'Borgo Ripa Urban Travel',
+                hostelCoords: [41.8868, 12.4774],
+                dailyBudgetEUR: 44.50,
+                stops: [
+                    {
+                        id: 'd4_s1',
+                        time: '07:30 - 09:45',
+                        category: 'Entrada 100% Gratis',
+                        title: 'Plaza y Basílica de San Pedro (La Piedad de Miguel Ángel)',
+                        fromPrev: 'Caminata escénica de 25 min junto al río Tíber o Bus 23 / 280',
+                        desc: 'Entra completamente gratis a la iglesia más grande del mundo para admirar La Piedad de Miguel Ángel, el Baldaquino de Bernini y la tumba de San Pedro.',
+                        tip: 'Llegar a las 07:30 AM te ahorra más de 1 hora de fila en el control de seguridad. Recuerda llevar hombros y rodillas cubiertos.',
+                        costEUR: 1.50,
+                        coords: [41.9022, 12.4539],
+                        mapsQuery: 'Basilica+di+San+Pietro+Vaticano'
+                    },
+                    {
+                        id: 'd4_opt1',
+                        isOptional: true,
+                        time: '08:30 - 09:45 (Optativo)',
+                        category: '💎 Experiencia Única',
+                        title: 'Subida a la Cúpula de San Pedro (Diseñada por Miguel Ángel)',
+                        fromPrev: 'Entrada lateral derecha dentro del pórtico de la Basílica de San Pedro',
+                        desc: 'Sube hasta la linterna superior de la cúpula más alta de Roma para ver la Plaza de San Pedro desde el cielo, los jardines vaticanos y todo el horizonte romano.',
+                        tip: 'Cuesta 8 € subiendo los 551 escalones a pie, o 10 € tomando el ascensor hasta la terraza y luego 320 escalones.',
+                        costEUR: 10.00,
+                        coords: [41.9023, 12.4533],
+                        mapsQuery: 'Cupola+di+San+Pietro+Vaticano'
+                    },
+                    {
+                        id: 'd4_s2',
+                        isOptional: true,
+                        time: '10:00 - 13:15 (Optativo VIP)',
+                        category: '⭐ Capilla Sixtina',
+                        title: 'Museos Vaticanos y Capilla Sixtina (Bóveda y Juicio Final de Miguel Ángel)',
+                        fromPrev: 'Camina 12 minutos bordeando la muralla vaticana hasta Viale Vaticano',
+                        desc: 'Recorre la Galería de los Mapas, las Estancias de Rafael y entra en silencio a la Capilla Sixtina para admirar los frescos de La Creación de Adán y El Juicio Final de Miguel Ángel.',
+                        tip: 'Compra la entrada SOLO en la web oficial (tickets.museivaticani.va) por 20 € (+5 € si reservas online) o haz fila temprano en taquilla; nunca compres a revendedores en la calle de 50 €.',
+                        costEUR: 20.00,
+                        coords: [41.9065, 12.4536],
+                        mapsQuery: 'Musei+Vaticani+Viale+Vaticano+Roma',
+                        officialUrl: 'https://tickets.museivaticani.va/'
+                    },
+                    {
+                        id: 'd4_s3',
+                        time: '13:30 - 14:45',
+                        category: 'Almuerzo Barato',
+                        title: 'Pizza al Corte en el Barrio de Prati / Borgo Pio',
+                        fromPrev: 'A 5 minutos saliendo de los Museos Vaticanos',
+                        desc: 'Descansa en las calles de Prati o Borgo Pio comiendo focaccia rellena o pizza al peso a precios locales.',
+                        tip: 'En la calle Via Leone IV o Borgo Pio comes excelente por menos de 9 €.',
+                        costEUR: 8.50,
+                        coords: [41.9045, 12.4596],
+                        mapsQuery: 'Borgo+Pio+Roma'
+                    },
+                    {
+                        id: 'd4_s4',
+                        time: '15:00 - 16:30',
+                        category: 'Paseo Monumental',
+                        title: 'Via della Conciliazione, Castel Sant\'Angelo y Puente de los Ángeles',
+                        fromPrev: 'Camina 8 minutos desde Borgo Pio',
+                        desc: 'Recorre la avenida monumental hasta el mausoleo del emperador Adriano (Castel Sant\'Angelo) y cruza el puente peatonal escoltado por los ángeles esculpidos por Bernini.',
+                        tip: 'Las fotos desde el Puente Sant\'Angelo y el Puente Umberto I hacia la cúpula de San Pedro son gratuitas e inolvidables.',
+                        costEUR: 0,
+                        coords: [41.9031, 12.4663],
+                        mapsQuery: 'Ponte+Sant+Angelo+Roma'
+                    },
+                    {
+                        id: 'd4_s5',
+                        time: '17:00 - 21:00',
+                        category: 'Mirador & Cena',
+                        title: 'Atardecer en el Mirador del Gianicolo + Cena en Tonnarello Scala',
+                        fromPrev: 'Subida escénica hacia Trastevere pasando por Fontana dell\'Acqua Paola',
+                        desc: 'Contempla toda Roma iluminada desde la colina del Gianicolo y baja las escalinatas directo hacia Piazza della Scala para cenar una pasta romana.',
+                        tip: 'El mirador de Piazzale Garibaldi es 100% gratuito.',
+                        costEUR: 14.50,
+                        coords: [41.8914, 12.4615],
+                        mapsQuery: 'Terrazza+del+Gianicolo+Roma'
                     }
                 ]
             },
@@ -1222,40 +1353,30 @@
                         mapsQuery: 'Ponte+Sant+Angelo+Roma'
                     },
                     {
-                        id: 'd4_s3',
-                        time: '13:15 - 15:00',
-                        category: 'Almuerzo Barato',
-                        title: 'Pizza al Corte en el Barrio de Prati / Borgo Pio',
-                        fromPrev: 'A 6 minutos de Castel Sant\'Angelo',
-                        desc: 'Recorre las pintorescas calles peatonales de Borgo Pio y almuerza focaccia o pasta del día en barra.',
-                        tip: 'En Prati los precios para almorzar son mucho más económicos que frente a la plaza del Vaticano.',
-                        costEUR: 8.50,
-                        coords: [41.9045, 12.4596],
-                        mapsQuery: 'Borgo+Pio+Roma'
-                    },
-                    {
-                        id: 'd4_s4',
-                        time: '16:30 - 18:30',
-                        category: 'El Mejor Mirador',
-                        title: 'Fontana dell\'Acqua Paola y Mirador del Gianicolo',
-                        fromPrev: 'Subida escénica a pie de regreso hacia Trastevere',
-                        desc: 'Sube a la colina del Gianicolo (donde se rodó La Grande Bellezza) para tener toda Roma a tus pies al atardecer y baja directo hacia tu hostal.',
-                        tip: 'El mirador de Piazzale Garibaldi y el Tempietto di Bramante son gratuitos.',
-                        costEUR: 2.50,
-                        coords: [41.8914, 12.4615],
-                        mapsQuery: 'Terrazza+del+Gianicolo+Roma'
+                        id: 'd4_opt2',
+                        isOptional: true,
+                        time: '15:15 - 16:45 (Optativo)',
+                        category: '💎 Joya Optativa',
+                        title: 'Interior del Castillo de Sant\'Angelo y Terraza del Ángel',
+                        fromPrev: 'Frente al Puente de los Ángeles',
+                        desc: 'Si no alcanzaste a entrar el domingo gratis, puedes recorrer el corredor secreto papal (Passetto di Borgo), las salas renacentistas y la terraza superior donde se grabó Tosca.',
+                        tip: 'Entrada estatal oficial: 16 €.',
+                        costEUR: 16.00,
+                        coords: [41.9031, 12.4663],
+                        mapsQuery: 'Castel+Sant+Angelo+Roma',
+                        officialUrl: 'https://castelsantangelo.beniculturali.it/'
                     },
                     {
                         id: 'd4_s5',
-                        time: '19:30 - 21:30',
-                        category: 'Cena Trastevere',
-                        title: 'Noche de Carbonara o Amatriciana en Tonnarello Scala',
-                        fromPrev: 'Baja las escaleras del Gianicolo directo a Piazza della Scala (10 min)',
-                        desc: 'Disfruta una cena cálida en Piazza della Scala en el corazón de Trastevere.',
-                        tip: 'El tiramisú casero (~6 €) alcanza perfecto para darse un gusto.',
-                        costEUR: 12.00,
-                        coords: [41.8907, 12.4685],
-                        mapsQuery: 'Tonnarello+Scala+Roma'
+                        time: '17:00 - 21:00',
+                        category: 'Mirador & Cena',
+                        title: 'Atardecer en el Mirador del Gianicolo + Cena en Tonnarello Scala',
+                        fromPrev: 'Subida escénica hacia Trastevere pasando por Fontana dell\'Acqua Paola',
+                        desc: 'Contempla toda Roma iluminada desde la colina del Gianicolo y baja las escalinatas directo hacia Piazza della Scala para cenar una pasta romana.',
+                        tip: 'El mirador de Piazzale Garibaldi es 100% gratuito.',
+                        costEUR: 14.50,
+                        coords: [41.8914, 12.4615],
+                        mapsQuery: 'Terrazza+del+Gianicolo+Roma'
                     }
                 ]
             },
@@ -1304,6 +1425,20 @@
                         costEUR: 9.00,
                         coords: [41.8996, 12.4746],
                         mapsQuery: 'Chiesa+di+San+Luigi+dei+Francesi+Roma'
+                    },
+                    {
+                        id: 'd5_opt1',
+                        isOptional: true,
+                        time: '15:00 - 16:30 (Optativo)',
+                        category: '💎 Palacio Barroco',
+                        title: 'Galería Doria Pamphilj o Termas de Caracalla',
+                        fromPrev: 'En Via del Corso 305 (a 5 min de Piazza Venezia)',
+                        desc: 'El palacio privado más fastuoso de Roma con su galería de espejos dorados tipo Versalles y el famoso retrato del Papa Inocencio X pintado por Velázquez. Alternativa arqueológica: las colosales Termas de Caracalla (13 €).',
+                        tip: 'Entrada a Galería Doria Pamphilj con audioguía incluida: 16 €.',
+                        costEUR: 16.00,
+                        coords: [41.8976, 12.4810],
+                        mapsQuery: 'Galleria+Doria+Pamphilj+Roma',
+                        officialUrl: 'https://www.doriapamphilj.it/'
                     },
                     {
                         id: 'd5_s4',
@@ -1388,6 +1523,20 @@
                         costEUR: 7.00,
                         coords: [40.4155, -3.7074],
                         mapsQuery: 'Plaza+Mayor+Madrid'
+                    },
+                    {
+                        id: 'd6_opt1',
+                        isOptional: true,
+                        time: '21:15 - 22:30 (Optativo)',
+                        category: '💎 Plan Nocturno Madrid',
+                        title: 'Azotea del Círculo de Bellas Artes (Mirador Gran Vía) o Museo del Prado Gratis',
+                        fromPrev: 'Caminando 10 min desde Puerta del Sol por Calle de Alcalá',
+                        desc: 'Sube a la famosa azotea del Círculo de Bellas Artes para ver el edificio Metrópolis y toda la Gran Vía iluminada de noche (5,50 €). Tip extra: si tu vuelo aterriza puntual, el Museo del Prado es GRATIS de 18:00 a 20:00.',
+                        tip: 'Subida al mirador de la Azotea del Círculo de Bellas Artes: 5,50 €.',
+                        costEUR: 5.50,
+                        coords: [40.4184, -3.6966],
+                        mapsQuery: 'Azotea+del+Circulo+de+Bellas+Artes+Madrid',
+                        officialUrl: 'https://www.circulobellasartes.com/azotea/'
                     }
                 ]
             },
@@ -1424,6 +1573,20 @@
                         costEUR: 0,
                         coords: [40.4180, -3.7143],
                         mapsQuery: 'Palacio+Real+de+Madrid'
+                    },
+                    {
+                        id: 'd7_opt1',
+                        isOptional: true,
+                        time: '10:00 - 11:15 (Optativo VIP)',
+                        category: '💎 Interior Palacio Real',
+                        title: 'Entrada Oficial al Interior del Palacio Real de Madrid (Salón del Trono y Armería)',
+                        fromPrev: 'Acceso por la explanada de la Almudena (Calle de Bailén)',
+                        desc: 'El palacio real más grande de Europa Occidental (el doble que Buckingham Palace). Si decides entrar, verás el Salón del Trono, la Escalera Principal de Sabatini, los violines Stradivarius y la Real Armería.',
+                        tip: 'Abre a las 10:00 AM. Recorrido express de 1 hora cuesta 14 € en la web oficial de Patrimonio Nacional.',
+                        costEUR: 14.00,
+                        coords: [40.4179, -3.7143],
+                        mapsQuery: 'Palacio+Real+de+Madrid',
+                        officialUrl: 'https://entradas.patrimonionacional.es/'
                     },
                     {
                         id: 'd7_s3',
@@ -1548,7 +1711,8 @@
             { id: 'b3', title: 'Billetes sueltos Bus/Metro en Roma (Tap & Go)', category: 'Transporte', amountEUR: 4.50, paid: false },
             { id: 'b4', title: 'Metro / Cercanías Madrid Barajas ↔ La Latina (Ida y Vuelta)', category: 'Transporte', amountEUR: 9.00, paid: false },
             { id: 'b5', title: 'Coliseo, Foro Romano y Palatino (¡Gratis Dom 1 Nov!)', category: 'Entradas', amountEUR: 0.00, paid: true },
-            { id: 'b6', title: 'Entrada oficial al Panteón de Roma', category: 'Entradas', amountEUR: 5.00, paid: false },
+            { id: 'b6', title: 'Entrada oficial al Panteón de Roma (Lun 2 Nov)', category: 'Entradas', amountEUR: 5.00, paid: false },
+            { id: 'b6_vatican', title: 'Entrada Oficial Museos Vaticanos y Capilla Sixtina (Mar 3 Nov)', category: 'Entradas', amountEUR: 20.00, paid: false },
             { id: 'b7', title: 'Alimentación Día 1 (Sáb 31 Oct - Café, Trapizzino y Cena)', category: 'Comida', amountEUR: 22.00, paid: false },
             { id: 'b8', title: 'Alimentación Día 2 (Dom 1 Nov - Pizza al taglio y Cena)', category: 'Comida', amountEUR: 23.00, paid: false },
             { id: 'b9', title: 'Alimentación Día 3 (Lun 2 Nov - Panini, Helado y Cena)', category: 'Comida', amountEUR: 23.00, paid: false },
@@ -1557,8 +1721,7 @@
             { id: 'b12', title: 'Alimentación y Tapas en Madrid (Jue 5 y Vie 6 Nov)', category: 'Comida', amountEUR: 26.00, paid: false }
         ];
 
-        let budgetItems = JSON.parse(localStorage.getItem('ana_trip_budget') || 'null') || JSON.parse(JSON.stringify(defaultBudgetItems));
-
+        let budgetItems = JSON.parse(localStorage.getItem('ana_trip_budget_v2') || 'null') || JSON.parse(JSON.stringify(defaultBudgetItems));
         // ==========================================
         // 5. LEAFLET INTERACTIVE MAP INITIALIZATION (ESRI ARCGIS ENTERPRISE - NO 403 BLOCK)
         // ==========================================
@@ -1692,17 +1855,22 @@
             // 2. Add Numbered Stop Pins
             dayObj.stops.forEach((stop, idx) => {
                 const num = idx + 1;
+                const isOpt = !!stop.isOptional;
+                const isOptEnabled = isOpt ? !!enabledUpgrades[stop.id] : true;
+                const pinBg = isOpt ? (isOptEnabled ? '#7C3AED' : '#9CA3AF') : '#C85A32';
+                const pinLabel = isOpt ? `★` : `${num}`;
+
                 const stopIcon = L.divIcon({
                     className: '',
-                    html: `<div class="custom-pin" style="width:28px;height:28px;background:#C85A32;">${num}</div>`,
+                    html: `<div class="custom-pin" style="width:28px;height:28px;background:${pinBg};">${pinLabel}</div>`,
                     iconSize: [28, 28],
                     iconAnchor: [14, 14]
                 });
 
                 const marker = L.marker(stop.coords, { icon: stopIcon })
                     .bindPopup(`
-                        <div class="p-1 max-w-[220px]">
-                            <span class="text-[10px] font-mono font-bold text-terracotta">PARADA #${num} • ${stop.time}</span>
+                        <div class="p-1 max-w-[230px]">
+                            <span class="text-[10px] font-mono font-bold ${isOpt ? 'text-purple-600' : 'text-terracotta'}">${isOpt ? '💎 OPTATIVO' : 'PARADA #' + num} • ${stop.time}</span>
                             <h4 class="font-bold text-xs sm:text-sm mt-0.5">${stop.title}</h4>
                             <p class="text-[11px] text-stone-600 mt-1">${stop.tip}</p>
                             <div class="mt-2 flex items-center justify-between">
@@ -1712,7 +1880,9 @@
                         </div>
                     `);
                 markersLayerGroup.addLayer(marker);
-                coordsList.push(stop.coords);
+                if (!isOpt || isOptEnabled) {
+                    coordsList.push(stop.coords);
+                }
             });
 
             // 3. Draw Dashed Walking Route Polyline
@@ -1879,27 +2049,32 @@
             const noteInput = document.getElementById('dayNoteInput');
 
             const doneCount = dayObj.stops.filter(s => checkedActivities[s.id]).length;
-            const totalDayCost = dayObj.stops.reduce((acc, s) => acc + s.costEUR, 0);
+            const baseDayCost = dayObj.stops.filter(s => !s.isOptional).reduce((acc, s) => acc + s.costEUR, 0);
+            const activeOptCost = dayObj.stops.filter(s => s.isOptional && enabledUpgrades[s.id]).reduce((acc, s) => acc + s.costEUR, 0);
+            const totalDayCost = baseDayCost + activeOptCost;
 
             if (summaryEl) {
                 summaryEl.innerHTML = `
                     <div class="flex flex-wrap items-start justify-between gap-3">
                         <div class="space-y-1">
-                            <div class="flex items-center gap-2">
+                            <div class="flex flex-wrap items-center gap-2">
                                 <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-terracotta/15 text-terracotta">
                                     DÍA ${dayObj.id} • ${dayObj.city.toUpperCase()}
                                 </span>
                                 <span class="text-xs text-stone-500 dark:text-slate-400 flex items-center gap-1">
                                     <i data-lucide="bed-double" class="w-3.5 h-3.5 text-emerald-600"></i> Base: <strong>${dayObj.hostelName}</strong>
                                 </span>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/20">
+                                    💎 Incluye planes optativos de pago
+                                </span>
                             </div>
                             <h2 class="font-editorial font-bold text-2xl sm:text-3xl text-stone-900 dark:text-white leading-tight">${dayObj.title}</h2>
                             <p class="text-xs sm:text-sm text-stone-600 dark:text-slate-300">${dayObj.subtitle}</p>
                         </div>
                         <div class="bg-stone-50 dark:bg-slate-900/80 px-3.5 py-2 rounded-xl border border-stone-200/70 dark:border-slate-700 text-right shrink-0">
-                            <p class="text-[10px] uppercase tracking-wider text-stone-400 font-bold">Gasto Estimado del Día</p>
+                            <p class="text-[10px] uppercase tracking-wider text-stone-400 font-bold">Gasto del Día (Base + Optativos)</p>
                             <p class="font-mono font-bold text-base text-terracotta">${formatMoney(totalDayCost)}</p>
-                            <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">${doneCount} de ${dayObj.stops.length} completados</p>
+                            <p class="text-[10px] text-stone-500 dark:text-slate-400">Base ahorro: ${formatMoney(baseDayCost)} ${activeOptCost > 0 ? ' • VIP: +' + formatMoney(activeOptCost) : ''}</p>
                         </div>
                     </div>
                 `;
@@ -1908,24 +2083,40 @@
             if (timelineEl) {
                 timelineEl.innerHTML = dayObj.stops.map((stop, index) => {
                     const isDone = !!checkedActivities[stop.id];
+                    const isOpt = !!stop.isOptional;
+                    const isOptActive = isOpt ? !!enabledUpgrades[stop.id] : true;
                     const num = index + 1;
+
+                    const cardBorder = isDone
+                        ? 'border-emerald-500/50 bg-emerald-50/20 dark:bg-emerald-950/10'
+                        : isOpt
+                            ? (isOptActive ? 'border-purple-500/60 bg-purple-50/30 dark:bg-purple-950/20 ring-1 ring-purple-500/20' : 'border-dashed border-purple-300 dark:border-purple-800/60 bg-white/70 dark:bg-slate-800/50 opacity-85')
+                            : 'border-stone-200/80 dark:border-slate-700 bg-white dark:bg-slate-800';
+
                     return `
-                        <div class="rounded-2xl bg-white dark:bg-slate-800 border ${isDone ? 'border-emerald-500/50 bg-emerald-50/20 dark:bg-emerald-950/10' : 'border-stone-200/80 dark:border-slate-700'} p-4 sm:p-5 shadow-sm transition hover:shadow-md">
+                        <div class="rounded-2xl border ${cardBorder} p-4 sm:p-5 shadow-sm transition hover:shadow-md">
                             <div class="flex items-start gap-3.5">
                                 <!-- Interactive Check / Number Button -->
-                                <button onclick="toggleActivityCheck('${stop.id}')" class="mt-0.5 w-8 h-8 rounded-xl flex items-center justify-center font-mono font-bold text-xs shrink-0 transition ${isDone ? 'bg-emerald-600 text-white shadow-sm' : 'bg-terracotta/15 text-terracotta hover:bg-terracotta hover:text-white'}" title="Marcar como completado">
-                                    ${isDone ? '✓' : num}
+                                <button onclick="toggleActivityCheck('${stop.id}')" class="mt-0.5 w-8 h-8 rounded-xl flex items-center justify-center font-mono font-bold text-xs shrink-0 transition ${isDone ? 'bg-emerald-600 text-white shadow-sm' : isOpt ? 'bg-purple-600/15 text-purple-700 dark:text-purple-300 hover:bg-purple-600 hover:text-white' : 'bg-terracotta/15 text-terracotta hover:bg-terracotta hover:text-white'}" title="Marcar como completado">
+                                    ${isDone ? '✓' : (isOpt ? '💎' : num)}
                                 </button>
 
                                 <div class="flex-1 min-w-0 space-y-2">
                                     <div class="flex flex-wrap items-center justify-between gap-2">
-                                        <div class="flex items-center gap-2">
+                                        <div class="flex flex-wrap items-center gap-2">
                                             <span class="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-stone-100 dark:bg-slate-700 text-stone-700 dark:text-slate-200">${stop.time}</span>
-                                            <span class="text-[11px] font-bold uppercase tracking-wider text-terracotta">${stop.category}</span>
+                                            <span class="text-[11px] font-bold uppercase tracking-wider ${isOpt ? 'text-purple-700 dark:text-purple-300 bg-purple-500/10 px-2 py-0.5 rounded-md' : 'text-terracotta'}">${stop.category}</span>
                                         </div>
-                                        <span class="font-mono text-xs font-bold px-2.5 py-0.5 rounded-full ${stop.costEUR === 0 ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300' : 'bg-amber-500/15 text-amber-800 dark:text-amber-300'}">
-                                            ${formatMoney(stop.costEUR)}
-                                        </span>
+                                        <div class="flex items-center gap-2">
+                                            ${isOpt ? `
+                                                <button onclick="toggleOptionalUpgrade('${stop.id}')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1 ${isOptActive ? 'bg-purple-600 text-white shadow-sm' : 'bg-stone-200 dark:bg-slate-700 text-stone-700 dark:text-slate-300 hover:bg-purple-600 hover:text-white'}">
+                                                    ${isOptActive ? '✓ Incluido en mi presupuesto' : '+ Incluir plan optativo'}
+                                                </button>
+                                            ` : ''}
+                                            <span class="font-mono text-xs font-bold px-2.5 py-0.5 rounded-full ${stop.costEUR === 0 ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300' : isOpt ? 'bg-purple-500/15 text-purple-800 dark:text-purple-300' : 'bg-amber-500/15 text-amber-800 dark:text-amber-300'}">
+                                                ${formatMoney(stop.costEUR)}
+                                            </span>
+                                        </div>
                                     </div>
 
                                     <h3 class="font-bold text-base sm:text-lg text-stone-900 dark:text-white ${isDone ? 'line-through opacity-60' : ''}">${stop.title}</h3>
@@ -1936,18 +2127,23 @@
 
                                     <p class="text-xs sm:text-sm text-stone-600 dark:text-slate-300 leading-relaxed">${stop.desc}</p>
 
-                                    <div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2">
-                                        <i data-lucide="lightbulb" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
-                                        <span><strong>Tip Ahorro:</strong> ${stop.tip}</span>
+                                    <div class="p-2.5 rounded-xl ${isOpt ? 'bg-purple-500/10 border border-purple-500/20 text-purple-950 dark:text-purple-200' : 'bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-200'} text-xs flex items-start gap-2">
+                                        <i data-lucide="lightbulb" class="w-4 h-4 ${isOpt ? 'text-purple-600' : 'text-amber-600'} shrink-0 mt-0.5"></i>
+                                        <span><strong>${isOpt ? 'Dato Oficial / Taquilla:' : 'Tip Ahorro:'}</strong> ${stop.tip}</span>
                                     </div>
 
                                     <div class="pt-1 flex flex-wrap items-center gap-2">
                                         <button onclick="focusMapPoint(${stop.coords[0]}, ${stop.coords[1]}, '${stop.mapsQuery}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-100 dark:bg-slate-700 hover:bg-terracotta hover:text-white text-stone-700 dark:text-slate-200 text-xs font-semibold transition">
-                                            <i data-lucide="locate-fixed" class="w-3.5 h-3.5"></i> Ver en el Mapa (#${num})
+                                            <i data-lucide="locate-fixed" class="w-3.5 h-3.5"></i> Ver en el Mapa
                                         </button>
                                         <a href="https://www.google.com/maps/search/?api=1&query=${stop.mapsQuery}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-100 dark:bg-slate-700 hover:bg-stone-200 text-stone-700 dark:text-slate-200 text-xs font-semibold transition">
                                             <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Google Maps
                                         </a>
+                                        ${stop.officialUrl ? `
+                                            <a href="${stop.officialUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-600/15 hover:bg-purple-600 hover:text-white text-purple-700 dark:text-purple-300 text-xs font-bold transition">
+                                                <i data-lucide="ticket" class="w-3.5 h-3.5"></i> Web Oficial de Entradas
+                                            </a>
+                                        ` : ''}
                                     </div>
                                 </div>
                             </div>
@@ -1963,6 +2159,44 @@
             updateMapForDay(dayObj);
             updateGlobalProgressKPI();
             if (window.lucide) lucide.createIcons();
+        }
+
+        function toggleOptionalUpgrade(stopId) {
+            enabledUpgrades[stopId] = !enabledUpgrades[stopId];
+            localStorage.setItem('ana_trip_upgrades', JSON.stringify(enabledUpgrades));
+
+            // Sincronizar con la billetera de gastos si el usuario lo activa o desactiva
+            let stopData = null;
+            TRIP_DAYS.forEach(d => {
+                const found = d.stops.find(s => s.id === stopId);
+                if (found) stopData = { ...found, dayId: d.id };
+            });
+
+            if (stopData) {
+                const budgetId = 'opt_' + stopId;
+                const existingIdx = budgetItems.findIndex(b => b.id === budgetId || (stopId === 'd4_s2' && b.id === 'b6_vatican'));
+                if (enabledUpgrades[stopId]) {
+                    if (existingIdx === -1) {
+                        budgetItems.push({
+                            id: budgetId,
+                            title: `💎 [Optativo Día ${stopData.dayId}] ${stopData.title}`,
+                            category: 'Entradas',
+                            amountEUR: stopData.costEUR,
+                            paid: false
+                        });
+                    }
+                    showToast('Plan optativo sumado a tu presupuesto');
+                } else {
+                    if (existingIdx !== -1) {
+                        budgetItems.splice(existingIdx, 1);
+                    }
+                    showToast('Plan optativo retirado del presupuesto');
+                }
+                localStorage.setItem('ana_trip_budget_v2', JSON.stringify(budgetItems));
+            }
+
+            renderSelectedDayContent();
+            renderBudgetTracker();
         }
 
         function toggleActivityCheck(stopId) {
@@ -2090,7 +2324,7 @@
             const item = budgetItems.find(i => i.id === id);
             if (item) {
                 item.paid = !item.paid;
-                localStorage.setItem('ana_trip_budget', JSON.stringify(budgetItems));
+                localStorage.setItem('ana_trip_budget_v2', JSON.stringify(budgetItems));
                 renderBudgetTracker();
             }
         }
@@ -2112,7 +2346,7 @@
                 paid: true
             });
 
-            localStorage.setItem('ana_trip_budget', JSON.stringify(budgetItems));
+            localStorage.setItem('ana_trip_budget_v2', JSON.stringify(budgetItems));
             titleEl.value = '';
             amountEl.value = '';
             renderBudgetTracker();
@@ -2121,13 +2355,13 @@
 
         function deleteBudgetItem(id) {
             budgetItems = budgetItems.filter(i => i.id !== id);
-            localStorage.setItem('ana_trip_budget', JSON.stringify(budgetItems));
+            localStorage.setItem('ana_trip_budget_v2', JSON.stringify(budgetItems));
             renderBudgetTracker();
         }
 
         function resetBudgetTracker() {
             budgetItems = JSON.parse(JSON.stringify(defaultBudgetItems));
-            localStorage.setItem('ana_trip_budget', JSON.stringify(budgetItems));
+            localStorage.setItem('ana_trip_budget_v2', JSON.stringify(budgetItems));
             renderBudgetTracker();
             showToast('Presupuesto restablecido');
         }
@@ -2310,3 +2544,4 @@
     </script>
 </body>
 </html>
+```
